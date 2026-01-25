@@ -61,8 +61,8 @@ export async function handler(
 	if (tryandfind) return res.status(409).json({ success: false, error: 'Workspace already exists' })
 
 	// Enforce one workspace per owner
-	//const alreadyOwns = await prisma.workspace.findFirst({ where: { ownerId: BigInt(req.session.userid) } })
-	//if (alreadyOwns) return res.status(403).json({ success: false, error: 'You already own a workspace' })
+	const alreadyOwns = await prisma.workspace.findFirst({ where: { ownerId: req.session.userid } })
+	if (alreadyOwns) return res.status(403).json({ success: false, error: 'You already own a workspace' })
 	const urrole = await noblox.getRankInGroup(groupId, req.session.userid).catch(() => null)
 	if (!urrole) return res.status(400).json({ success: false, error: 'You are not a high enough rank' })
 	if (urrole < 10) return res.status(400).json({ success: false, error: 'You are not a high enough rank' })

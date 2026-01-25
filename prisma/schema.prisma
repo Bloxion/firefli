@@ -8,6 +8,7 @@ datasource db {
 
 model workspace {
   groupId           Int                        @id @unique
+  ownerId           Int?
   groupName         String?
   groupLogo         String?
   lastSynced        DateTime?

@@ -13,7 +13,7 @@ import Input from "@/components/input"
 import { useForm, FormProvider } from "react-hook-form"
 import { useRecoilState } from "recoil"
 import { toast } from "react-hot-toast"
-import { IconPlus, IconRefresh, IconChevronRight, IconBuildingSkyscraper, IconSettings, IconX } from "@tabler/icons-react"
+import { IconPlus, IconRefresh, IconChevronRight, IconBuildingSkyscraper } from "@tabler/icons-react"
 
 const Home: NextPage = () => {
   const [login, setLogin] = useRecoilState(loginState)
@@ -22,16 +22,6 @@ const Home: NextPage = () => {
   const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
   const [isOwner, setIsOwner] = useState(false)
-  const [showInstanceSettings, setShowInstanceSettings] = useState(false)
-  const [robloxConfig, setRobloxConfig] = useState({
-    clientId: '',
-    clientSecret: '',
-    redirectUri: '',
-    oauthOnlyLogin: false
-  })
-  const [configLoading, setConfigLoading] = useState(false)
-  const [saveMessage, setSaveMessage] = useState('')
-  const [usingEnvVars, setUsingEnvVars] = useState(false)
 
   const gotoWorkspace = (id: number) => {
     router.push(`/workspace/${id}`)
@@ -133,60 +123,6 @@ const Home: NextPage = () => {
     })
   }
 
-  useEffect(() => {
-    if (showInstanceSettings && isOwner) {
-      loadRobloxConfig()
-    }
-  }, [showInstanceSettings, isOwner])
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const currentOrigin = window.location.origin
-      const autoRedirectUri = `${currentOrigin}/api/auth/roblox/callback`
-      setRobloxConfig(prev => ({ ...prev, redirectUri: autoRedirectUri }))
-    }
-  }, [])
-
-  const loadRobloxConfig = async () => {
-    try {
-      const response = await axios.get('/api/admin/instance-config')
-      const { robloxClientId, robloxClientSecret, oauthOnlyLogin, usingEnvVars: envVars } = response.data
-      const currentOrigin = typeof window !== 'undefined' ? window.location.origin : ''
-      const autoRedirectUri = `${currentOrigin}/api/auth/roblox/callback`
-      
-      setRobloxConfig({
-        clientId: robloxClientId || '',
-        clientSecret: robloxClientSecret || '',
-        redirectUri: response.data.robloxRedirectUri || autoRedirectUri,
-        oauthOnlyLogin: oauthOnlyLogin || false
-      })
-      setUsingEnvVars(envVars || false)
-    } catch (error) {
-      console.error('Failed to load OAuth config:', error)
-    }
-  }
-
-  const saveRobloxConfig = async () => {
-    setConfigLoading(true)
-    setSaveMessage('')
-    try {
-      await axios.post('/api/admin/instance-config', {
-        robloxClientId: robloxConfig.clientId,
-        robloxClientSecret: robloxConfig.clientSecret,
-        robloxRedirectUri: robloxConfig.redirectUri,
-        oauthOnlyLogin: robloxConfig.oauthOnlyLogin
-      })
-      setSaveMessage('Settings saved successfully!')
-      setTimeout(() => setSaveMessage(''), 3000)
-    } catch (error) {
-      console.error('Failed to save OAuth config:', error)
-      setSaveMessage('Failed to save settings. Please try again.')
-      setTimeout(() => setSaveMessage(''), 3000)
-    } finally {
-      setConfigLoading(false)
-    }
-  }
-
   return (
     <div>
       <Head>
@@ -213,13 +149,6 @@ const Home: NextPage = () => {
                 <IconRefresh className="mr-2 h-5 w-5" />
                 Check Roles
               </Button>
-              {isOwner && (
-                <Button
-                  onClick={() => setShowInstanceSettings(true)}
-                  classoverride="flex items-center bg-blue-600 hover:bg-blue-700 dark:bg-blue-200 dark:hover:bg-blue-300 text-white">
-                  <IconSettings className="h-5 w-5" />
-                </Button>
-              )}
             </div>
           </div>
 
@@ -321,176 +250,6 @@ const Home: NextPage = () => {
                         </Button>
                         <Button onClick={methods.handleSubmit(createWorkspace)} loading={loading}>
                           Create
-                        </Button>
-                      </div>
-                    </Dialog.Panel>
-                  </Transition.Child>
-                </div>
-              </div>
-            </Dialog>
-          </Transition>
-
-          <Transition appear show={showInstanceSettings} as={Fragment}>
-            <Dialog as="div" className="relative z-10" onClose={() => setShowInstanceSettings(false)}>
-              <Transition.Child
-                as={Fragment}
-                enter="ease-out duration-300"
-                enterFrom="opacity-0"
-                enterTo="opacity-100"
-                leave="ease-in duration-200"
-                leaveFrom="opacity-100"
-                leaveTo="opacity-0"
-              >
-                <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm" />
-              </Transition.Child>
-
-              <div className="fixed inset-0 overflow-y-auto">
-                <div className="flex min-h-full items-center justify-center p-4 text-center">
-                  <Transition.Child
-                    as={Fragment}
-                    enter="ease-out duration-300"
-                    enterFrom="opacity-0 scale-95"
-                    enterTo="opacity-100 scale-100"
-                    leave="ease-in duration-200"
-                    leaveFrom="opacity-100 scale-100"
-                    leaveTo="opacity-0 scale-95"
-                  >
-                    <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-xl bg-white dark:bg-zinc-800 p-6 text-left align-middle shadow-xl transition-all">
-                      <div className="flex items-center justify-between mb-6">
-                        <Dialog.Title className="text-lg font-semibold text-zinc-900 dark:text-white">
-                          Instance Settings
-                        </Dialog.Title>
-                        <button
-                          onClick={() => setShowInstanceSettings(false)}
-                          className="p-1 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700"
-                        >
-                          <IconX className="w-5 h-5 text-zinc-500" />
-                        </button>
-                      </div>
-
-                      <div className="space-y-4">
-                        <div>
-                          <h3 className="text-sm font-medium text-zinc-900 dark:text-white mb-3">
-                            Roblox OAuth Configuration
-                          </h3>
-                          
-                          {usingEnvVars && (
-                            <div className="mb-4 p-3 rounded-md bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
-                              <p className="text-sm text-blue-800 dark:text-blue-200 font-medium">
-                                🔒 Using Environment Variables
-                              </p>
-                              <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">
-                                Database configuration is disabled.
-                              </p>
-                            </div>
-                          )}
-                          
-                          <div className="space-y-3">
-                            <div>
-                              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
-                                Client ID
-                              </label>
-                              <input
-                                type="text"
-                                value={robloxConfig.clientId}
-                                onChange={(e) => setRobloxConfig(prev => ({ ...prev, clientId: e.target.value }))}
-                                placeholder="e.g. 23748326747865334"
-                                disabled={usingEnvVars}
-                                className={`w-full px-3 py-2 border rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                                  usingEnvVars 
-                                    ? 'bg-zinc-100 dark:bg-zinc-800 border-zinc-300 dark:border-zinc-600 text-zinc-500 dark:text-zinc-400 cursor-not-allowed' 
-                                    : 'border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white'
-                                }`}
-                              />
-                            </div>
-                            
-                            <div>
-                              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
-                                Client Secret
-                              </label>
-                              <input
-                                type="password"
-                                value={robloxConfig.clientSecret}
-                                onChange={(e) => setRobloxConfig(prev => ({ ...prev, clientSecret: e.target.value }))}
-                                placeholder="e.g. JHJD_NMIRHNSD$ER$6dj38"
-                                disabled={usingEnvVars}
-                                className={`w-full px-3 py-2 border rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                                  usingEnvVars 
-                                    ? 'bg-zinc-100 dark:bg-zinc-800 border-zinc-300 dark:border-zinc-600 text-zinc-500 dark:text-zinc-400 cursor-not-allowed' 
-                                    : 'border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white'
-                                }`}
-                              />
-                            </div>
-                            
-                            <div>
-                              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
-                                Redirect URI <span className="text-xs text-zinc-500">(auto-generated)</span>
-                              </label>
-                              <input
-                                type="url"
-                                value={robloxConfig.redirectUri}
-                                readOnly
-                                placeholder="https://instance.planetaryapp.cloud/api/auth/roblox/callback"
-                                className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 text-sm cursor-not-allowed"
-                                title="This field is automatically generated based on your current domain"
-                              />
-                            </div>
-                          </div>
-                          
-                          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-2">
-                            Need a hand? Check our documentation at{' '}
-                            <a href="https://docs.planetaryapp.us/workspace/oauth" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                              docs.planetaryapp.us
-                            </a>
-                          </p>
-                        </div>
-
-                        <div className="mt-4 pt-4 border-t border-zinc-200 dark:border-zinc-700">
-                          <label className="flex items-center cursor-pointer">
-                            <input
-                              type="checkbox"
-                              checked={robloxConfig.oauthOnlyLogin}
-                              onChange={(e) => setRobloxConfig(prev => ({ ...prev, oauthOnlyLogin: e.target.checked }))}
-                              disabled={usingEnvVars}
-                              className={`w-4 h-4 text-blue-600 border-zinc-300 dark:border-zinc-600 rounded focus:ring-blue-500 focus:ring-2 ${
-                                usingEnvVars ? 'bg-zinc-100 dark:bg-zinc-800 cursor-not-allowed' : 'bg-white dark:bg-zinc-700'
-                              }`}
-                            />
-                            <span className={`ml-2 text-sm ${usingEnvVars ? 'text-zinc-500 dark:text-zinc-400' : 'text-zinc-700 dark:text-zinc-300'}`}>
-                              Enforce OAuth login
-                            </span>
-                          </label>
-                          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 ml-6">
-                            When enabled, users will only see the Roblox OAuth login button.
-                          </p>
-                        </div>
-                      </div>
-
-                      {saveMessage && (
-                        <div className={`mt-4 p-3 rounded-md text-sm ${
-                          saveMessage.includes('successfully') 
-                            ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300'
-                            : 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300'
-                        }`}>
-                          {saveMessage}
-                        </div>
-                      )}
-
-                      <div className="flex justify-end space-x-3 mt-6">
-                        <Button
-                          onClick={() => setShowInstanceSettings(false)}
-                          disabled={configLoading}
-                          classoverride="bg-zinc-200 hover:bg-zinc-300 text-zinc-800 dark:bg-zinc-700 dark:hover:bg-zinc-600 dark:text-white"
-                        >
-                          Cancel
-                        </Button>
-                        <Button
-                          onClick={saveRobloxConfig}
-                          loading={configLoading}
-                          disabled={configLoading || usingEnvVars}
-                          classoverride={usingEnvVars ? "bg-zinc-300 dark:bg-zinc-700 text-zinc-500 dark:text-zinc-400 cursor-not-allowed" : ""}
-                        >
-                          {usingEnvVars ? 'Using Env Vars' : 'Save Settings'}
                         </Button>
                       </div>
                     </Dialog.Panel>

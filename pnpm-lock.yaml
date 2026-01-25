@@ -6,6 +6,11 @@ settings:
 
 overrides:
   qs: '>=6.14.1'
+  hono@<4.11.4: '>=4.11.4'
+  lodash@>=4.0.0 <=4.17.22: '>=4.17.23'
+  diff@<4.0.4: '>=4.0.4'
+  diff@>=5.0.0 <5.2.2: '>=5.2.2'
+  undici@>=7.0.0 <7.18.2: '>=7.18.2'
 
 importers:
 
@@ -262,7 +267,7 @@ importers:
         specifier: ^8.4.38
         version: 8.5.6
       prisma:
-        specifier: ^7.1.0
+        specifier: 7.1.0
         version: 7.1.0(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)
       tailwindcss:
         specifier: ^3.4.3
@@ -456,7 +461,7 @@ packages:
     resolution: {integrity: sha512-Shz/KjlIeAhfiuE93NDKVdZ7HdBVLQAfdbaXEaoAVO3ic9ibRSLGIQGkcBbFyuLr+7/1D5ZCINM8B+6IvXeMtw==}
     engines: {node: '>=18.14.1'}
     peerDependencies:
-      hono: ^4
+      hono: '>=4.11.4'
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -2210,12 +2215,12 @@ packages:
   didyoumean@1.2.2:
     resolution: {integrity: sha512-gxtyfqMg7GKyhQmb056K7M3xszy/myH8w+B4RT+QXBQsvAOdc3XymqDDPHx1BgPgsdAA5SIifona89YtRATDzw==}
 
-  diff@4.0.2:
-    resolution: {integrity: sha512-58lmxKSA4BNyLz+HHMUzlOEpg09FV+ev6ZMe3vJihgdxzgcwZ8VoEEPmALCZG9LmqfVoNMMKpttIYTVG6uDY7A==}
-    engines: {node: '>=0.3.1'}
-
   diff@5.2.0:
     resolution: {integrity: sha512-uIFDxqpRZGZ6ThOk84hEfqWoHx2devRFvpTZcTHur85vImfaxUbTW9Ryh4CpCuDnToOP1CEtXKIgytHBPVff5A==}
+    engines: {node: '>=0.3.1'}
+
+  diff@8.0.3:
+    resolution: {integrity: sha512-qejHi7bcSD4hQAZE0tNAawRK1ZtafHDmMTMkrrIGgSLl7hTnQHmKCeB45xAcbfTqK2zowkM3j3bHt/4b/ARbYQ==}
     engines: {node: '>=0.3.1'}
 
   direction@2.0.1:
@@ -2841,8 +2846,8 @@ packages:
     resolution: {integrity: sha512-NQO+lgVUCtHxZ792FodgW0zflK+ozS9X9dwGp9XvvmPlH7pyxd588cn24TD3rmPm/N0AIRXF10Otah8yKqGw4w==}
     engines: {node: '>=12'}
 
-  hono@4.10.6:
-    resolution: {integrity: sha512-BIdolzGpDO9MQ4nu3AUuDwHZZ+KViNm+EZ75Ae55eMXMqLVhDFqEMXxtUe9Qh8hjL+pIna/frs2j6Y2yD5Ua/g==}
+  hono@4.11.5:
+    resolution: {integrity: sha512-WemPi9/WfyMwZs+ZUXdiwcCh9Y+m7L+8vki9MzDw3jJ+W9Lc+12HGsd368Qc1vZi1xwW8BWMMsnK5efYKPdt4g==}
     engines: {node: '>=16.9.0'}
 
   html-url-attributes@3.0.1:
@@ -3256,8 +3261,8 @@ packages:
   lodash.throttle@4.1.1:
     resolution: {integrity: sha512-wIkUCfVKpVsWo3JSZlc+8MB5it+2AN5W8J7YVMST30UrvcQNZ1Okbj+rbVniijTWE6FGYy4XJq/rHkas8qJMLQ==}
 
-  lodash@4.17.21:
-    resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
+  lodash@4.17.23:
+    resolution: {integrity: sha512-LgVTMpQtIopCi79SJeDiP0TfWi5CNEc/L/aRdTh3yIvmZXTnheWpKjSZhnvMl8iXbC1tFg9gdHHDMLoV7CnG+w==}
 
   long@5.3.2:
     resolution: {integrity: sha512-mNAgZ1GmyNhD7AuqnTG3/VQ26o760+ZYBPKjPvugO8+nLbYfX6TVpJPseBvopbdY+qpZ/lKUnmEc1LeZYS3QAA==}
@@ -4806,8 +4811,8 @@ packages:
   undici-types@6.21.0:
     resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
 
-  undici@7.16.0:
-    resolution: {integrity: sha512-QEg3HPMll0o3t2ourKwOeUAZ159Kn9mx5pnzHRQO8+Wixmh88YdZRiIwat0iNzNNXn0yoEtXJqFpyW7eM8BV7g==}
+  undici@7.19.1:
+    resolution: {integrity: sha512-Gpq0iNm5M6cQWlyHQv9MV+uOj1jWk7LpkoE5vSp/7zjb4zMdAcUD+VL5y0nH4p9EbUklq00eVIIX/XcDHzu5xg==}
     engines: {node: '>=20.18.1'}
 
   unified@10.1.2:
@@ -5165,12 +5170,12 @@ snapshots:
     dependencies:
       '@chevrotain/gast': 10.5.0
       '@chevrotain/types': 10.5.0
-      lodash: 4.17.21
+      lodash: 4.17.23
 
   '@chevrotain/gast@10.5.0':
     dependencies:
       '@chevrotain/types': 10.5.0
-      lodash: 4.17.21
+      lodash: 4.17.23
 
   '@chevrotain/types@10.5.0': {}
 
@@ -5280,9 +5285,9 @@ snapshots:
     dependencies:
       react: 18.3.1
 
-  '@hono/node-server@1.19.6(hono@4.10.6)':
+  '@hono/node-server@1.19.6(hono@4.11.5)':
     dependencies:
-      hono: 4.10.6
+      hono: 4.11.5
 
   '@humanfs/core@0.19.1': {}
 
@@ -5634,13 +5639,13 @@ snapshots:
       '@electric-sql/pglite': 0.3.2
       '@electric-sql/pglite-socket': 0.0.6(@electric-sql/pglite@0.3.2)
       '@electric-sql/pglite-tools': 0.2.7(@electric-sql/pglite@0.3.2)
-      '@hono/node-server': 1.19.6(hono@4.10.6)
+      '@hono/node-server': 1.19.6(hono@4.11.5)
       '@mrleebo/prisma-ast': 0.12.1
       '@prisma/get-platform': 6.8.2
       '@prisma/query-plan-executor': 6.18.0
       foreground-child: 3.3.1
       get-port-please: 3.1.2
-      hono: 4.10.6
+      hono: 4.11.5
       http-status-codes: 2.3.0
       pathe: 2.0.3
       proper-lockfile: 4.1.2
@@ -6831,7 +6836,7 @@ snapshots:
       parse5: 7.3.0
       parse5-htmlparser2-tree-adapter: 7.1.0
       parse5-parser-stream: 7.1.2
-      undici: 7.16.0
+      undici: 7.19.1
       whatwg-mimetype: 4.0.0
 
   chevrotain@10.5.0:
@@ -6840,7 +6845,7 @@ snapshots:
       '@chevrotain/gast': 10.5.0
       '@chevrotain/types': 10.5.0
       '@chevrotain/utils': 10.5.0
-      lodash: 4.17.21
+      lodash: 4.17.23
       regexp-to-ast: 0.5.0
 
   chokidar@3.6.0:
@@ -7038,9 +7043,9 @@ snapshots:
 
   didyoumean@1.2.2: {}
 
-  diff@4.0.2: {}
-
   diff@5.2.0: {}
+
+  diff@8.0.3: {}
 
   direction@2.0.1: {}
 
@@ -7892,7 +7897,7 @@ snapshots:
 
   hex-rgb@5.0.0: {}
 
-  hono@4.10.6: {}
+  hono@4.11.5: {}
 
   html-url-attributes@3.0.1: {}
 
@@ -8292,7 +8297,7 @@ snapshots:
 
   lodash.throttle@4.1.1: {}
 
-  lodash@4.17.21: {}
+  lodash@4.17.23: {}
 
   long@5.3.2: {}
 
@@ -10362,7 +10367,7 @@ snapshots:
       acorn-walk: 8.3.4
       arg: 4.1.3
       create-require: 1.1.1
-      diff: 4.0.2
+      diff: 5.2.0
       make-error: 1.3.6
       typescript: 5.9.3
       v8-compile-cache-lib: 3.0.1
@@ -10441,7 +10446,7 @@ snapshots:
 
   undici-types@6.21.0: {}
 
-  undici@7.16.0: {}
+  undici@7.19.1: {}
 
   unified@10.1.2:
     dependencies:
@@ -10573,7 +10578,7 @@ snapshots:
   uvu@0.5.6:
     dependencies:
       dequal: 2.0.3
-      diff: 5.2.0
+      diff: 8.0.3
       kleur: 4.1.5
       sade: 1.8.1
 

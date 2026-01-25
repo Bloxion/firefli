@@ -105,7 +105,6 @@ const Sidebar: NextPage<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
   const [login, setLogin] = useRecoilState(loginState)
   const [workspace, setWorkspace] = useRecoilState(workspacestate)
   const [theme, setTheme] = useRecoilState(themeState)
-  const [showOrbitInfo, setShowOrbitInfo] = useState(false);
   const [showCopyright, setShowCopyright] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [showChangelog, setShowChangelog] = useState(false);
@@ -428,7 +427,7 @@ const Sidebar: NextPage<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
                 <div className="flex items-center gap-0.2 mb-0.5 -ml-1">
                   <button
                     onClick={() => {
-                      setShowOrbitInfo(true);
+                      setShowCopyright(true);
                       setIsMobileMenuOpen(false);
                     }}
                     className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-500 hover:text-primary transition-all duration-300"
@@ -437,7 +436,7 @@ const Sidebar: NextPage<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
                     <IconCopyright className="w-4 h-4" />
                   </button>
                   <a
-                    href="https://docs.planetaryapp.us"
+                    href="https://docs.firefli.net"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-500 hover:text-primary transition-all duration-300"
@@ -446,7 +445,7 @@ const Sidebar: NextPage<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
                     <IconBook className="w-4 h-4" />
                   </a>
                   <a
-                    href="https://github.com/planetaryorbit/orbit"
+                    href="https://github.com/TeamFirefli/firefli"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-500 hover:text-primary transition-all duration-300"
@@ -455,7 +454,7 @@ const Sidebar: NextPage<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
                     <IconBrandGithub className="w-4 h-4" />
                   </a>
                   <a
-                    href="https://feedback.planetaryapp.us/bugs"
+                    href="https://feedback.firefli.net/bugs"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-500 hover:text-primary transition-all duration-300"
@@ -465,7 +464,7 @@ const Sidebar: NextPage<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
                   </a>
                 </div>
                 <div className="flex items-center gap-1 text-sm text-zinc-500">
-                  <span>Orbit v{packageJson.version}</span>
+                  <span>Firefli v{packageJson.version}</span>
                   <button
                     onClick={() => {
                       setShowChangelog(true);
@@ -572,6 +571,16 @@ const Sidebar: NextPage<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
                 </div>
 
                 <div className="space-y-4">
+
+                  <div>
+                    <h3 className="text-sm font-medium text-zinc-900 dark:text-white mb-1">
+                      Firefli features, enhancements, and modifications:
+                    </h3>
+                    <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                      Copyright © 2026 Firefli. All rights reserved.
+                    </p>
+                  </div>
+
                   <div>
                     <h3 className="text-sm font-medium text-zinc-900 dark:text-white mb-1">
                       Orbit features, enhancements, and modifications:
@@ -589,50 +598,6 @@ const Sidebar: NextPage<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
                       Copyright © 2022 Tovy. All rights reserved.
                     </p>
                   </div>
-                </div>
-              </Dialog.Panel>
-            </div>
-          </Dialog>
-
-          <Dialog
-            open={showOrbitInfo}
-            onClose={() => setShowOrbitInfo(false)}
-            className="relative z-50"
-          >
-            <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
-          
-            <div className="fixed inset-0 flex items-center justify-center p-4">
-              <Dialog.Panel className="mx-auto max-w-lg rounded-lg bg-white dark:bg-zinc-800 p-6 shadow-xl transition-all duration-300">
-                <div className="flex items-center justify-between mb-4">
-                  <Dialog.Title className="text-lg font-medium text-zinc-900 dark:text-white">
-                    © Copyright Notices
-                  </Dialog.Title>
-                  <button
-                    onClick={() => setShowOrbitInfo(false)}
-                    className="p-1 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-all duration-300"
-                  >
-                    <IconX className="w-5 h-5 text-zinc-500" />
-                  </button>
-                </div>
-          
-                <div className="mb-4">
-                  <p className="text-sm font-medium text-zinc-900 dark:text-white mb-1">
-                    Orbit
-                  </p>
-                  <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                    © 2025 Planetary — All rights reserved.
-                  </p>
-                </div>
-          
-                <div className="border-t border-zinc-300 dark:border-zinc-700 my-4" />
-          
-                <div className="mb-4">
-                  <p className="text-sm font-medium text-zinc-900 dark:text-white mb-1">
-                    Original Tovy Project
-                  </p>
-                  <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                    © 2022 Tovy — All rights reserved.
-                  </p>
                 </div>
               </Dialog.Panel>
             </div>
