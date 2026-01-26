@@ -1,5 +1,5 @@
 import { NextPage } from "next";
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import axios from "axios";
 import Router from "next/router";
@@ -7,6 +7,9 @@ import Input from "@/components/input";
 import Button from "@/components/button";
 import { Dialog } from "@headlessui/react";
 import { IconX } from "@tabler/icons-react";
+import { useRecoilState } from "recoil";
+import { themeState } from "@/state/theme";
+import ThemeToggle from "@/components/ThemeToggle";
 
 type FormData = {
 	username: string;
@@ -22,9 +25,116 @@ const ForgotPassword: NextPage = () => {
 	const [code, setCode] = useState("");
 	const [error, setError] = useState<string | null>(null);
 	const [showCopyright, setShowCopyright] = useState(false);
+	const canvasRef = useRef<HTMLCanvasElement>(null);
+	const [theme] = useRecoilState(themeState);
+	const [mounted, setMounted] = useState(false);
+	const isDarkModeRef = useRef(false);
 
 	const usernameForm = useForm<FormData>();
 	const passwordForm = useForm<ResetPasswordData>();
+
+	useEffect(() => {
+		setMounted(true);
+	}, []);
+
+	useEffect(() => {
+		if (!mounted) return;
+		const isDark = theme === "dark";
+		isDarkModeRef.current = isDark;
+	}, [mounted, theme]);
+
+	useEffect(() => {
+		if (!mounted) return;
+		
+		const canvas = canvasRef.current;
+		if (!canvas) return;
+
+		const ctx = canvas.getContext("2d");
+		if (!ctx) return;
+
+		let width = window.innerWidth;
+		let height = window.innerHeight;
+		let animationId: number;
+		let time = 0;
+
+		canvas.width = width;
+		canvas.height = height;
+
+		const animate = () => {
+			width = window.innerWidth;
+			height = window.innerHeight;
+			canvas.width = width;
+			canvas.height = height;
+
+			time += 0.005;
+			const dark = isDarkModeRef.current;
+			
+			if (dark) {
+				const bgGrad = ctx.createLinearGradient(0, 0, width, height);
+				bgGrad.addColorStop(0, "#0a0a0f");
+				bgGrad.addColorStop(0.3, "#1a1a2e");
+				bgGrad.addColorStop(0.6, "#16213e");
+				bgGrad.addColorStop(1, "#0f0f1a");
+				ctx.fillStyle = bgGrad;
+			} else {
+				const bgGrad = ctx.createLinearGradient(0, 0, width, height);
+				bgGrad.addColorStop(0, "#a8edea");
+				bgGrad.addColorStop(0.5, "#fed6e3");
+				bgGrad.addColorStop(1, "#d299c2");
+				ctx.fillStyle = bgGrad;
+			}
+			ctx.fillRect(0, 0, width, height);
+			const waveCount = 4;
+			for (let w = 0; w < waveCount; w++) {
+				ctx.beginPath();
+				
+				const waveOffset = w * 0.5;
+				const amplitude = 30 + w * 15;
+				const frequency = 0.003 + w * 0.001;
+				const yBase = height * (0.5 + w * 0.12);
+				
+				ctx.moveTo(0, height);
+				
+				for (let x = 0; x <= width; x += 5) {
+					const y = yBase + 
+						Math.sin(x * frequency + time + waveOffset) * amplitude +
+						Math.sin(x * frequency * 2 + time * 1.5 + waveOffset) * (amplitude * 0.5);
+					ctx.lineTo(x, y);
+				}
+				ctx.lineTo(width, height);
+				ctx.closePath();
+				const waveGrad = ctx.createLinearGradient(0, yBase - amplitude, width, yBase + amplitude);
+				const alpha = 0.15 - w * 0.03;
+				
+				if (dark) {
+					waveGrad.addColorStop(0, `rgba(99, 102, 241, ${alpha})`);
+					waveGrad.addColorStop(0.5, `rgba(139, 92, 246, ${alpha})`);
+					waveGrad.addColorStop(1, `rgba(59, 130, 246, ${alpha})`);
+				} else {
+					waveGrad.addColorStop(0, `rgba(244, 114, 182, ${alpha + 0.1})`);
+					waveGrad.addColorStop(0.5, `rgba(168, 85, 247, ${alpha + 0.1})`);
+					waveGrad.addColorStop(1, `rgba(99, 102, 241, ${alpha + 0.1})`);
+				}
+				ctx.fillStyle = waveGrad;
+				ctx.fill();
+			}
+
+			animationId = requestAnimationFrame(animate);
+		};
+		animate();
+
+		const resize = () => {
+			canvas.width = window.innerWidth;
+			canvas.height = window.innerHeight;
+		};
+		
+		window.addEventListener("resize", resize);
+		
+		return () => {
+			window.removeEventListener("resize", resize);
+			cancelAnimationFrame(animationId);
+		};
+	}, [mounted]);
 
 	const startReset = async () => {
 		setError(null);
@@ -55,9 +165,19 @@ const ForgotPassword: NextPage = () => {
 
 	return (
 		<>
-			<div className="flex items-center justify-center h-screen px-4 overflow-hidden bg-infobg-light dark:bg-infobg-dark">
-				<div className="bg-white dark:bg-zinc-700 dark:bg-opacity-50 dark:backdrop-blur-lg max-w-md w-full rounded-3xl p-8 shadow-lg relative">
-					{selectedSlide === 0 && (
+			<div className="relative min-h-screen overflow-hidden">
+				<canvas
+					ref={canvasRef}
+					className="absolute inset-0 w-full h-full"
+					style={{ zIndex: 0 }}
+				/>
+				<div className="flex items-center justify-center min-h-screen px-4 relative" style={{ zIndex: 1 }}>
+					<div className="bg-white/90 dark:bg-zinc-800/80 backdrop-blur-md max-w-md w-full rounded-3xl p-8 shadow-lg relative">
+						<div className="absolute top-4 right-4">
+							<ThemeToggle />
+						</div>
+
+						{selectedSlide === 0 && (
 						<>
 							<p className="font-bold text-2xl dark:text-white mb-2">Forgot your password?</p>
 							<p className="text-md text-zinc-500 dark:text-zinc-200 mb-6">
@@ -180,16 +300,17 @@ const ForgotPassword: NextPage = () => {
 							)}
 						</>
 					)}
-				</div>
+					</div>
 
-				<div className="fixed bottom-4 left-4 z-40">
-					<button
-						onClick={() => setShowCopyright(true)}
-						className="text-left text-xs text-zinc-500 hover:text-primary"
-						type="button"
-					>
-						© Copyright Notices
-					</button>
+					<div className="fixed bottom-4 left-4 z-40">
+						<button
+							onClick={() => setShowCopyright(true)}
+							className="text-left text-xs text-zinc-500 hover:text-primary"
+							type="button"
+						>
+							© Copyright Notices
+						</button>
+					</div>
 				</div>
 			</div>
 
