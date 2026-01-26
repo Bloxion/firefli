@@ -51,4 +51,4 @@ deploy.sh
 deploy.sh
 
 # Livechat (customize locally)
-/components/livechat.tsx
+/pages/_document.tsx
