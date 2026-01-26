@@ -424,7 +424,7 @@ export const getServerSideProps = withPermissionCheckSsr(
       return {
         ...quota,
         currentValue,
-        percentage: Math.min(percentage, 100),
+        percentage,
       };
     });
 
@@ -656,7 +656,7 @@ const Quotas: pageWithLayout<pageProps> = ({
               </h1>
               <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
                 {activeTab === "my-quotas"
-                  ? "Track your quota progress and requirements"
+                  ? "Track your quota progress since the last activity reset"
                   : "Manage quotas for your workspace"}
               </p>
             </div>
@@ -770,7 +770,7 @@ const Quotas: pageWithLayout<pageProps> = ({
                           />
                         </div>
                         <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
-                          {quota.percentage.toFixed(0)}% complete
+                          {Math.min(quota.percentage, 100).toFixed(0)}% complete
                         </p>
                       </div>
                       <div className="mt-4 pt-4 border-t border-zinc-200 dark:border-zinc-600">

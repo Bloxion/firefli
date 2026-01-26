@@ -27,6 +27,9 @@ export function QuotasProgress({
   allianceVisits,
 }: Props) {
   const getQuotaPercentage = (quota: Quota | any) => {
+    if (!quota || !quota.value) {
+      return 0;
+    }
     if (quota.percentage !== undefined) {
       return quota.percentage;
     }
@@ -47,10 +50,16 @@ export function QuotasProgress({
       case "alliance_visits": {
         return (allianceVisits / quota.value) * 100;
       }
+      default: {
+        return 0;
+      }
     }
   };
 
   const getQuotaProgress = (quota: Quota | any) => {
+    if (!quota || !quota.type) {
+      return "0 / 0";
+    }
     if (quota.currentValue !== undefined) {
       return `${quota.currentValue} / ${quota.value} ${
         quota.type === "mins"
@@ -76,6 +85,9 @@ export function QuotasProgress({
       }
       case "alliance_visits": {
         return `${allianceVisits} / ${quota.value} alliance visits`;
+      }
+      default: {
+        return `${quota.currentValue || 0} / ${quota.value || 0}`;
       }
     }
   };
@@ -150,7 +162,7 @@ export function QuotasProgress({
                   Progress
                 </span>
                 <span className="text-sm font-bold text-zinc-900 dark:text-white">
-                  {quota.currentValue !== undefined ? quota.currentValue : 0} / {quota.value}
+                  {getQuotaProgress(quota)}
                 </span>
               </div>
               <div className="w-full bg-zinc-200 dark:bg-zinc-600 rounded-full h-3">
@@ -166,7 +178,7 @@ export function QuotasProgress({
                 />
               </div>
               <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
-                {(getQuotaPercentage(quota) || 0).toFixed(0)}% complete
+                {Math.min((getQuotaPercentage(quota) || 0), 100).toFixed(0)}% complete
               </p>
             </div>
           ))}
