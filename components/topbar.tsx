@@ -32,7 +32,7 @@ const Topbar: NextPage = () => {
 				<div className="flex justify-between items-center h-16">
 					<div className="flex items-center space-x-4">
 						<img
-							src='/firefli.png'
+							src='/firefli.svg'
 							className="h-8 w-auto"
 							alt="Firefli logo"
 						/>
