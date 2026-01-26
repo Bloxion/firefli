@@ -457,7 +457,7 @@ export function ActivityOverview({
                             <p className="text-xs text-zinc-600 dark:text-zinc-300">
                               Currently active in game
                             </p>
-                          )}n                        </div>
+                          )}                        </div>
                       </li>
                     </div>
                   );
