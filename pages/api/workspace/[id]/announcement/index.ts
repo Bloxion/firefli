@@ -58,7 +58,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
     });
 
     const defaultAnnouncement = {
-      title: "Planetary",
+      title: "Firefli",
       subtitle: "Update: v2.1.8 is now live!",
       sections: [
         {

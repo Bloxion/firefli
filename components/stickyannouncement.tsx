@@ -21,7 +21,7 @@ interface Announcement {
 }
 
 const defaultAnnouncement: Announcement = {
-  title: "Planetary",
+  title: "Firefli",
   subtitle: "Update: v2.1.8 is now live!",
   sections: [
     {
@@ -42,7 +42,7 @@ const defaultAnnouncement: Announcement = {
     {
       title: "",
       content:
-        "That's a wrap for this week — we'll see you soon for more updates from Team Planetary.",
+        "That's a wrap for this week — we'll see you soon for more updates from Team Firefli.",
     },
   ],
   editorUsername: null,
@@ -307,7 +307,7 @@ export default function StickyNoteAnnouncement() {
                 <>
                   <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
                     That's a wrap for this week — we'll see you next Saturday
-                    for more updates from Team Planetary.
+                    for more updates from Team Firefli.
                   </p>
                   <p className="text-xs text-zinc-500 dark:text-zinc-400">
                     Read the full changelog

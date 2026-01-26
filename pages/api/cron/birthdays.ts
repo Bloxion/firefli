@@ -99,7 +99,7 @@ export default async function handler(
 
           const webhookBody: any = {
             embeds: [embed],
-            username: "Planetary Birthdays",
+            username: "Firefli Birthdays",
             avatar_url: `http://cdn.planetaryapp.us/brand/planetary.png`,
           };
 

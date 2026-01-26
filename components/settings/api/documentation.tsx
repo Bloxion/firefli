@@ -45,12 +45,12 @@ export const ApiDocumentation = ({ triggerToast }: { triggerToast: any }) => {
               <div className="mt-4 text-sm text-zinc-600 dark:text-zinc-300">
                 Check out the{" "}
                 <a
-                  href="https://docs.planetaryapp.cloud/api-references/introduction"
+                  href="https://docs.firefli.net/api-references/introduction"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-primary underline hover:opacity-80"
                 >
-                  Orbit API Documentation
+                  Firefli API Documentation
                 </a>.
               </div>
             </div>

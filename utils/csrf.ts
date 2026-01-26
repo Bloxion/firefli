@@ -29,10 +29,6 @@ export function validateOrigin(req: NextApiRequest): boolean {
     }
   }
 
-  if (host?.endsWith(".planetaryapp.cloud")) {
-    return true;
-  }
-
   const allowedOrigins = getAllowedOrigins();
 
   if (origin) {
@@ -102,7 +98,7 @@ export function validateCsrf(
     return true;
   }
 
-  if (req.headers["x-planetary-cloud-service-key"]) {
+  if (req.headers["x-service-key"]) {
     return true;
   }
 

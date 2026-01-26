@@ -90,7 +90,7 @@ export function withPermissionCheck(
       PLANETARY_CLOUD_SERVICE_KEY.length > 0
     ) {
       if (
-        req.headers["x-planetary-cloud-service-key"] ===
+        req.headers["x-service-key"] ===
         PLANETARY_CLOUD_SERVICE_KEY
       ) {
         return handler(req, res);
@@ -202,7 +202,7 @@ export function withPermissionCheckSsr(
       PLANETARY_CLOUD_SERVICE_KEY.length > 0
     ) {
       if (
-        req.headers["x-planetary-cloud-service-key"] ===
+        req.headers["x-service-key"] ===
         PLANETARY_CLOUD_SERVICE_KEY
       ) {
         return handler(context);
