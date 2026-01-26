@@ -1,7 +1,7 @@
 import Parser from "rss-parser";
 
 export default async function handler(req, res) {
-	const FEED_URL = "https://changelog.planetaryapp.us/rss.xml";
+	const FEED_URL = "https://cl.firefli.net/changelog/cmkvbgjd2001888v9k9z2bs8f/rss.xml";
 	try {
 		const parser = new Parser();
 		const feed = await parser.parseURL(FEED_URL);
