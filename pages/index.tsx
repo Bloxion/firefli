@@ -14,13 +14,14 @@ import { useForm, FormProvider } from "react-hook-form"
 import { useRecoilState } from "recoil"
 import { toast } from "react-hot-toast"
 import { IconPlus, IconRefresh, IconChevronRight, IconBuildingSkyscraper } from "@tabler/icons-react"
+import { createWorkspaceModalState } from "@/state"
 
 const Home: NextPage = () => {
   const [login, setLogin] = useRecoilState(loginState)
   const [loading, setLoading] = useState(false)
   const methods = useForm()
   const router = useRouter()
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpen, setIsOpen] = useRecoilState(createWorkspaceModalState)
   const [isOwner, setIsOwner] = useState(false)
   const canCreateWorkspace = process.env.NEXT_PUBLIC_FIREFLI_LIMIT === 'true' || (!process.env.NEXT_PUBLIC_FIREFLI_LIMIT && isOwner)
 

@@ -1,5 +1,5 @@
 import type { NextPage } from "next";
-import { loginState, workspacestate } from "@/state";
+import { loginState, workspacestate, createWorkspaceModalState } from "@/state";
 import { useRecoilState } from "recoil";
 import { Menu, Transition, Listbox } from "@headlessui/react";
 import { useRouter } from "next/router";
@@ -40,6 +40,7 @@ function getRandomBg(userid: number | string, username?: string) {
 const Topbar: NextPage = () => {
 	const [login, setLogin] = useRecoilState(loginState);
 	const [workspace, setWorkspace] = useRecoilState(workspacestate);
+	const [, setCreateWorkspaceModal] = useRecoilState(createWorkspaceModalState);
 	const router = useRouter();
 	const isInWorkspace = router.pathname.startsWith('/workspace/');
 
@@ -131,10 +132,13 @@ const Topbar: NextPage = () => {
 														No other workspaces
 													</div>
 												)}
-												{login?.canMakeWorkspace && (
+												{login?.canMakeWorkspace && process.env.NEXT_PUBLIC_FIREFLI_LIMIT === 'true' && (
 													<div 
 														className="flex items-center gap-3 px-3 py-2 cursor-pointer rounded-md transition duration-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 border-t border-zinc-200 dark:border-zinc-700 mt-1"
-														onClick={() => router.push('/welcome')}
+													onClick={() => {
+														router.push('/');
+														setCreateWorkspaceModal(true);
+													}}
 													>
 														<div className="w-6 h-6 rounded bg-zinc-100 dark:bg-zinc-600 flex items-center justify-center">
 															<IconPlus className="w-3 h-3 text-zinc-600 dark:text-zinc-300" />

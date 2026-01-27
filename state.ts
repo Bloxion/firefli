@@ -54,4 +54,9 @@ const workspacestate = atom({
 	}
 });
 
-export {loginState, workspacestate};
+const createWorkspaceModalState = atom({
+	key: "createWorkspaceModalState",
+	default: false
+});
+
+export {loginState, workspacestate, createWorkspaceModalState};
