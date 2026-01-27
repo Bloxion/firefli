@@ -23,7 +23,6 @@ import {
   IconMedal,
   IconCrown,
   IconAward,
-  IconLaurelWreath1,
 } from "@tabler/icons-react";
 import Tooltip from "@/components/tooltip";
 import randomText from "@/utils/randomText";
@@ -43,14 +42,12 @@ const Activity: pageWithLayout = () => {
   const [sessionDetails, setSessionDetails] = useState<any>({});
   const [concurrentUsers, setConcurrentUsers] = useState<any[]>([]);
   const [loadingSession, setLoadingSession] = useState(false);
-  const [topStaff, setTopStaff] = useState<any[]>([]);
-  const [activeUsers, setActiveUsers] = useState<any[]>([]);
-  const [inactiveUsers, setInactiveUsers] = useState<any[]>([]);
-  const [leaderboardEnabled, setLeaderboardEnabled] = useState(false);
-  const [leaderboardStyle, setLeaderboardStyle] = useState<"list" | "podium">(
-    "list"
-  );
   const [idleTimeEnabled, setIdleTimeEnabled] = useState(true);
+  const [topStaff, setTopStaff] = useState<any[]>([]);
+  const [activeUsers, setActiveUsers] = useState([]);
+  const [inactiveUsers, setInactiveUsers] = useState([]);
+  const [leaderboardEnabled, setLeaderboardEnabled] = useState(false);
+  const [leaderboardStyle, setLeaderboardStyle] = useState<"list" | "podium">("list");
 
   useEffect(() => {
     async function fetchUserData() {
@@ -165,36 +162,52 @@ const Activity: pageWithLayout = () => {
     }
   }, [id, login.userId]);
 
+  // Fetch leaderboard data for mobile view
   useEffect(() => {
     async function fetchLeaderboardData() {
       try {
-        const configRes = await axios.get(
-          `/api/workspace/${id}/settings/general/leaderboard`
-        );
-        const isEnabled = configRes.data?.value?.enabled || false;
-        const style = configRes.data?.value?.style || "list";
-        setLeaderboardStyle(style);
-
-        if (isEnabled) {
-          const usersRes = await axios.get(
-            `/api/workspace/${id}/activity/users`
-          );
-          setLeaderboardEnabled(true);
-          setTopStaff(usersRes.data.message.topStaff || []);
-          setActiveUsers(usersRes.data.message.activeUsers || []);
-          setInactiveUsers(usersRes.data.message.inactiveUsers || []);
-        } else {
-          setLeaderboardEnabled(false);
-        }
+        const usersRes = await axios.get(`/api/workspace/${id}/activity/users`);
+        setTopStaff(usersRes.data.message.topStaff);
+        setActiveUsers(usersRes.data.message.activeUsers);
+        setInactiveUsers(usersRes.data.message.inactiveUsers);
       } catch (error) {
         console.error("Error fetching leaderboard data:", error);
       }
     }
 
+    async function fetchLeaderboardConfig() {
+      try {
+        const res = await axios.get(
+          `/api/workspace/${id}/settings/general/leaderboard`
+        );
+        let enabled = false;
+        let style = "list";
+        let val = res.data.value ?? res.data;
+        if (typeof val === "string") {
+          try {
+            val = JSON.parse(val);
+          } catch {
+            val = {};
+          }
+        }
+        enabled =
+          typeof val === "object" && val !== null && "enabled" in val
+            ? (val as { enabled?: boolean }).enabled ?? false
+            : false;
+        style =
+          typeof val === "object" && val !== null && "style" in val
+            ? (val as { style?: string }).style ?? "list"
+            : "list";
+        setLeaderboardEnabled(enabled);
+        setLeaderboardStyle(style as "list" | "podium");
+      } catch (error) {
+        console.error("Error fetching leaderboard config:", error);
+      }
+    }
+
     if (id) {
       fetchLeaderboardData();
-      const interval = setInterval(fetchLeaderboardData, 60000);
-      return () => clearInterval(interval);
+      fetchLeaderboardConfig();
     }
   }, [id]);
 
@@ -256,7 +269,7 @@ const Activity: pageWithLayout = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-zinc-50 via-white to-zinc-50 dark:from-zinc-900 dark:via-zinc-950 dark:to-zinc-900">
       <div className="pagePadding">
-      <div className="max-w-7xl mx-auto">
+      <div>
         <div className="flex items-center gap-3 mb-6">
           <div>
             <h1 className="text-2xl font-medium text-zinc-900 dark:text-white">
@@ -268,263 +281,168 @@ const Activity: pageWithLayout = () => {
           </div>
         </div>
 
+        {/* Leaderboard - Mobile Only */}
         {leaderboardEnabled && topStaff.length > 0 && (
-          <>
-            <div className="mb-8">
-              {leaderboardStyle === "podium" ? (
-                <>
-                  <div className="bg-white dark:bg-zinc-800 border border-white/10 rounded-xl p-6 shadow-sm mb-8">
-                    <div className="flex items-center gap-3 mb-6">
-                      <div className="bg-primary/10 p-3 rounded-xl">
-                        <IconTrophy className="w-6 h-6 text-primary" />
+          <div className="md:hidden mb-8">
+            {leaderboardStyle === "podium" ? (
+              <div className="bg-white dark:bg-zinc-800 border border-white/10 rounded-xl p-6 shadow-sm">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="bg-primary/10 p-3 rounded-xl">
+                    <IconTrophy className="w-6 h-6 text-primary" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-zinc-900 dark:text-white">
+                      Leaderboard
+                    </h2>
+                    <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                      Top performers this period
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-end justify-center gap-4">
+                  {topStaff[1] && (
+                    <div className="flex flex-col items-center flex-1 max-w-[100px]">
+                      <div className="relative mb-4">
+                        <div className={`w-16 h-16 rounded-full flex items-center justify-center ${getRandomBg(topStaff[1].userId)}`}>
+                          <img src={topStaff[1].picture} alt={topStaff[1].username} className="w-16 h-16 rounded-full border-4 border-gray-400 shadow-lg object-cover" style={{ background: "transparent" }} />
+                        </div>
+                        <div className="absolute -top-2 -right-2 bg-white dark:bg-zinc-800 rounded-full p-1">
+                          <IconMedal className="w-6 h-6 text-gray-400" />
+                        </div>
                       </div>
-                      <div>
-                        <h2 className="text-2xl font-bold text-zinc-900 dark:text-white">
-                          Leaderboard
-                        </h2>
-                        <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                          Top performers this period
-                        </p>
+                      <div className="h-20 bg-gradient-to-t from-gray-400 to-gray-300 border-gray-500 border-2 rounded-t-lg w-20 flex flex-col items-center justify-center shadow-lg">
+                        <span className="text-white font-bold text-lg">2</span>
+                      </div>
+                      <div className="mt-4 text-center">
+                        <p className="font-semibold text-xs text-zinc-900 dark:text-white truncate max-w-[100px]">{topStaff[1].username}</p>
+                        <p className="text-xs text-zinc-600 dark:text-zinc-400">{Math.floor(topStaff[1].ms / 1000 / 60)}m</p>
                       </div>
                     </div>
-                    <div className="flex items-end justify-center gap-4 sm:gap-6">
-                      {topStaff[1] && (
-                        <div className="flex flex-col items-center flex-1 max-w-[120px]">
-                          <div className="relative mb-4">
-                            <div
-                              className={`w-20 h-20 rounded-full flex items-center justify-center ${getRandomBg(
-                                topStaff[1].userId
-                              )}`}
-                            >
-                              <img
-                                src={topStaff[1].picture}
-                                alt={topStaff[1].username}
-                                className="w-20 h-20 rounded-full border-4 border-gray-400 shadow-lg object-cover"
-                                style={{ background: "transparent" }}
-                              />
-                            </div>
-                            <div className="absolute -top-2 -right-2 bg-white dark:bg-zinc-800 rounded-full p-1">
-                              {getPodiumIcon(1)}
-                            </div>
-                          </div>
-                          <div
-                            className={`${getPodiumHeight(1)} ${getPodiumColors(
-                              1
-                            )} border-2 rounded-t-lg w-24 flex flex-col items-center justify-center shadow-lg`}
-                          >
-                            <span className="text-white font-bold text-lg">
-                              2
-                            </span>
-                          </div>
-                          <div className="mt-4 text-center">
-                            <p className="font-semibold text-zinc-900 dark:text-white">
-                              {topStaff[1].username}
-                            </p>
-                            <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                              {(() => {
-                                const minutes = Math.floor(
-                                  topStaff[1].ms / 1000 / 60
-                                );
-                                return `${minutes} ${
-                                  minutes === 1 ? "minute" : "minutes"
-                                }`;
-                              })()}
-                            </p>
-                          </div>
-                        </div>
-                      )}
-
-                      <div className="flex flex-col items-center flex-1 max-w-[140px]">
-                        <div className="relative mb-4">
-                          <div
-                            className={`w-24 h-24 rounded-full flex items-center justify-center ${getRandomBg(
-                              topStaff[0].userId
-                            )}`}
-                          >
-                            <img
-                              src={topStaff[0].picture}
-                              alt={topStaff[0].username}
-                              className="w-24 h-24 rounded-full border-4 border-yellow-400 shadow-xl object-cover"
-                              style={{ background: "transparent" }}
-                            />
-                          </div>
-                          <div className="absolute -top-3 -right-3 bg-white dark:bg-zinc-800 rounded-full p-2">
-                            {getPodiumIcon(0)}
-                          </div>
-                        </div>
-                        <div
-                          className={`${getPodiumHeight(0)} ${getPodiumColors(
-                            0
-                          )} border-2 rounded-t-lg w-28 flex flex-col items-center justify-center shadow-xl relative`}
-                        >
-                          <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                            <div className="bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                              CHAMPION
-                            </div>
-                          </div>
-                          <span className="text-white font-bold text-xl">
-                            1
-                          </span>
-                        </div>
-                        <div className="mt-4 text-center">
-                          <p className="font-bold text-lg text-zinc-900 dark:text-white">
-                            {topStaff[0].username}
-                          </p>
-                          <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                            {(() => {
-                              const minutes = Math.floor(
-                                topStaff[0].ms / 1000 / 60
-                              );
-                              return `${minutes} ${
-                                minutes === 1 ? "minute" : "minutes"
-                              }`;
-                            })()}
-                          </p>
-                        </div>
+                  )}
+                  <div className="flex flex-col items-center flex-1 max-w-[120px]">
+                    <div className="relative mb-4">
+                      <div className={`w-20 h-20 rounded-full flex items-center justify-center ${getRandomBg(topStaff[0].userId)}`}>
+                        <img src={topStaff[0].picture} alt={topStaff[0].username} className="w-20 h-20 rounded-full border-4 border-yellow-400 shadow-xl object-cover" style={{ background: "transparent" }} />
                       </div>
-
-                      {topStaff[2] && (
-                        <div className="flex flex-col items-center flex-1 max-w-[120px]">
-                          <div className="relative mb-4">
-                            <div
-                              className={`w-20 h-20 rounded-full flex items-center justify-center ${getRandomBg(
-                                topStaff[2].userId
-                              )}`}
-                            >
-                              <img
-                                src={topStaff[2].picture}
-                                alt={topStaff[2].username}
-                                className="w-20 h-20 rounded-full border-4 border-amber-600 shadow-lg object-cover"
-                                style={{ background: "transparent" }}
-                              />
-                            </div>
-                            <div className="absolute -top-2 -right-2 bg-white dark:bg-zinc-800 rounded-full p-1">
-                              {getPodiumIcon(2)}
-                            </div>
-                          </div>
-                          <div
-                            className={`${getPodiumHeight(2)} ${getPodiumColors(
-                              2
-                            )} border-2 rounded-t-lg w-20 flex flex-col items-center justify-center shadow-lg`}
-                          >
-                            <span className="text-white font-bold text-base">
-                              3
-                            </span>
-                          </div>
-                          <div className="mt-4 text-center">
-                            <p className="font-semibold text-zinc-900 dark:text-white">
-                              {topStaff[2].username}
-                            </p>
-                            <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                              {(() => {
-                                const minutes = Math.floor(
-                                  topStaff[2].ms / 1000 / 60
-                                );
-                                return `${minutes} ${
-                                  minutes === 1 ? "minute" : "minutes"
-                                }`;
-                              })()}
-                            </p>
-                          </div>
-                        </div>
-                      )}
+                      <div className="absolute -top-3 -right-3 bg-white dark:bg-zinc-800 rounded-full p-2">
+                        <IconCrown className="w-7 h-7 text-yellow-500" />
+                      </div>
+                    </div>
+                    <div className="h-28 bg-gradient-to-t from-yellow-400 to-yellow-300 border-yellow-500 border-2 rounded-t-lg w-24 flex flex-col items-center justify-center shadow-xl relative">
+                      <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                        <div className="bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded-full">1ST</div>
+                      </div>
+                      <span className="text-white font-bold text-xl">1</span>
+                    </div>
+                    <div className="mt-4 text-center">
+                      <p className="font-bold text-sm text-zinc-900 dark:text-white truncate max-w-[120px]">{topStaff[0].username}</p>
+                      <p className="text-xs text-zinc-600 dark:text-zinc-400">{Math.floor(topStaff[0].ms / 1000 / 60)}m</p>
                     </div>
                   </div>
-                </>
-              ) : (
-                <>
-                  <div className="bg-white dark:bg-zinc-800 border border-white/10 rounded-xl p-4 shadow-sm mb-8">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="bg-primary/10 p-3 rounded-xl">
-                        <IconTrophy className="w-6 h-6 text-primary" />
+                  {topStaff[2] && (
+                    <div className="flex flex-col items-center flex-1 max-w-[100px]">
+                      <div className="relative mb-4">
+                        <div className={`w-16 h-16 rounded-full flex items-center justify-center ${getRandomBg(topStaff[2].userId)}`}>
+                          <img src={topStaff[2].picture} alt={topStaff[2].username} className="w-16 h-16 rounded-full border-4 border-amber-600 shadow-lg object-cover" style={{ background: "transparent" }} />
+                        </div>
+                        <div className="absolute -top-2 -right-2 bg-white dark:bg-zinc-800 rounded-full p-1">
+                          <IconAward className="w-5 h-5 text-amber-600" />
+                        </div>
                       </div>
-                      <div>
-                        <h2 className="text-2xl font-bold text-zinc-900 dark:text-white">
-                          Leaderboard
-                        </h2>
-                        <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                          Top performers this period
-                        </p>
+                      <div className="h-16 bg-gradient-to-t from-amber-600 to-amber-500 border-amber-700 border-2 rounded-t-lg w-16 flex flex-col items-center justify-center shadow-lg">
+                        <span className="text-white font-bold text-base">3</span>
+                      </div>
+                      <div className="mt-4 text-center">
+                        <p className="font-semibold text-xs text-zinc-900 dark:text-white truncate max-w-[100px]">{topStaff[2].username}</p>
+                        <p className="text-xs text-zinc-600 dark:text-zinc-400">{Math.floor(topStaff[2].ms / 1000 / 60)}m</p>
                       </div>
                     </div>
-                    <div className="space-y-2">
-                      {topStaff.slice(0, 3).map((user: any, index: number) => {
-                        const position = index + 1;
-                        let bgColor = "bg-zinc-50 dark:bg-zinc-700";
-                        let positionColor =
-                          "bg-zinc-300 dark:bg-zinc-600 text-zinc-700 dark:text-zinc-300";
-                        let borderColor = "border-transparent";
-
-                        if (position === 1) {
-                          bgColor =
-                            "bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20";
-                          positionColor =
-                            "bg-gradient-to-br from-yellow-400 to-amber-500 text-white";
-                          borderColor =
-                            "border-yellow-300 dark:border-yellow-700";
-                        } else if (position === 2) {
-                          bgColor =
-                            "bg-gradient-to-r from-gray-50 to-slate-50 dark:from-gray-800/50 dark:to-slate-800/50";
-                          positionColor =
-                            "bg-gradient-to-br from-gray-400 to-slate-500 text-white";
-                          borderColor = "border-gray-300 dark:border-gray-600";
-                        } else if (position === 3) {
-                          bgColor =
-                            "bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20";
-                          positionColor =
-                            "bg-gradient-to-br from-orange-500 to-amber-600 text-white";
-                          borderColor =
-                            "border-orange-300 dark:border-orange-700";
-                        }
-
-                        return (
-                          <div
-                            key={user.userId}
-                            className={`flex items-center justify-between p-2.5 rounded-lg ${bgColor} border ${borderColor} transition-all gap-2`}
-                          >
-                            <div className="flex items-center gap-2 flex-1 min-w-0">
-                              <div
-                                className={`flex items-center justify-center w-8 h-8 rounded-full font-bold ${positionColor} text-sm flex-shrink-0 shadow-md`}
-                              >
-                                {position}
-                              </div>
-                              <div
-                                className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 ${getRandomBg(
-                                  user.userId
-                                )} ring-2 ring-white dark:ring-zinc-700`}
-                              >
-                                <img
-                                  src={user.picture}
-                                  alt={user.username}
-                                  className="w-9 h-9 rounded-full border-2 border-white dark:border-zinc-700 shadow-sm object-cover"
-                                  style={{ background: "transparent" }}
-                                />
-                              </div>
-                              <div className="min-w-0 flex-1">
-                                <span className="font-semibold text-sm text-zinc-900 dark:text-white truncate block">
-                                  {user.username}
-                                </span>
-                              </div>
-                            </div>
-                            <div className="text-right flex-shrink-0">
-                              <p className="font-bold text-base text-zinc-900 dark:text-white whitespace-nowrap">
-                                {(() => {
-                                  const minutes = Math.floor(
-                                    user.ms / 1000 / 60
-                                  );
-                                  return `${minutes}m`;
-                                })()}
-                              </p>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="bg-white dark:bg-zinc-800 border border-white/10 rounded-xl p-4 shadow-sm">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="bg-primary/10 p-3 rounded-xl">
+                    <IconTrophy className="w-6 h-6 text-primary" />
                   </div>
-                </>
-              )}
-            </div>
-          </>
+                  <div>
+                    <h2 className="text-2xl font-bold text-zinc-900 dark:text-white">Leaderboard</h2>
+                    <p className="text-sm text-zinc-500 dark:text-zinc-400">Top performers this period</p>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  {topStaff.slice(0, 10).map((user: any, index: number) => {
+                    const position = index + 1;
+                    let bgColor = "bg-zinc-50 dark:bg-zinc-700";
+                    let positionColor = "bg-zinc-300 dark:bg-zinc-600 text-zinc-700 dark:text-zinc-300";
+                    let borderColor = "border-transparent";
+                    if (position === 1) {
+                      bgColor = "bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20";
+                      positionColor = "bg-gradient-to-br from-yellow-400 to-amber-500 text-white";
+                      borderColor = "border-yellow-300 dark:border-yellow-700";
+                    } else if (position === 2) {
+                      bgColor = "bg-gradient-to-r from-gray-50 to-slate-50 dark:from-gray-800/50 dark:to-slate-800/50";
+                      positionColor = "bg-gradient-to-br from-gray-400 to-slate-500 text-white";
+                      borderColor = "border-gray-300 dark:border-gray-600";
+                    } else if (position === 3) {
+                      bgColor = "bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20";
+                      positionColor = "bg-gradient-to-br from-orange-500 to-amber-600 text-white";
+                      borderColor = "border-orange-300 dark:border-orange-700";
+                    }
+                    return (
+                      <div key={user.userId} className={`flex items-center justify-between p-2.5 rounded-lg ${bgColor} border ${borderColor} gap-2`}>
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                          <div className={`flex items-center justify-center w-8 h-8 rounded-full font-bold ${positionColor} text-sm flex-shrink-0 shadow-md`}>{position}</div>
+                          <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 ${getRandomBg(user.userId)} ring-2 ring-white dark:ring-zinc-700`}>
+                            <img src={user.picture} alt={user.username} className="w-9 h-9 rounded-full border-2 border-white dark:border-zinc-700 shadow-sm object-cover" style={{ background: "transparent" }} />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <span className="font-semibold text-sm text-zinc-900 dark:text-white truncate block">{user.username}</span>
+                          </div>
+                        </div>
+                        <div className="text-right flex-shrink-0">
+                          <p className="font-bold text-base text-zinc-900 dark:text-white whitespace-nowrap">{Math.floor(user.ms / 1000 / 60)}m</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* In-game/Inactive Staff - Mobile Only */}
+        {leaderboardEnabled && topStaff.length > 0 && (
+          <div className="md:hidden grid grid-cols-1 gap-4 mb-8">
+            {[
+              { title: "In-game Staff", subtitle: "Currently active members", users: activeUsers, emptyText: "No staff are currently in-game", icon: IconUsers },
+              { title: "Inactive Staff", subtitle: "Staff on inactivity notice", users: inactiveUsers, emptyText: "No staff are currently inactive", icon: IconUserCircle },
+            ].map(({ title, subtitle, users, emptyText, icon: Icon }) => (
+              <div key={title} className="bg-white dark:bg-zinc-800 rounded-xl p-6 shadow-sm">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="bg-primary/10 p-2 rounded-lg">
+                    <Icon className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-medium text-zinc-900 dark:text-white">{title}</h3>
+                    <p className="text-sm text-zinc-500 dark:text-zinc-400">{subtitle}</p>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {users.map((user: any) => (
+                    <Tooltip key={user.userId} tooltipText={user.reason ? `${user.username} | ${moment(user.from).format("DD MMM")} - ${moment(user.to).format("DD MMM")}` : `${user.username}`} orientation="top">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${getRandomBg(user.userId)} ring-2 ring-primary/10 hover:ring-primary/30 transition-all`}>
+                        <img src={user.picture} alt={user.username} className="w-10 h-10 rounded-full object-cover border-2 border-white" style={{ background: "transparent" }} />
+                      </div>
+                    </Tooltip>
+                  ))}
+                  {users.length === 0 && <p className="text-sm text-zinc-500 dark:text-zinc-400 italic">{emptyText}</p>}
+                </div>
+              </div>
+            ))}
+          </div>
         )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 lg:gap-6 mb-8">
@@ -649,78 +567,6 @@ const Activity: pageWithLayout = () => {
           </div>
         )}
 
-        {leaderboardEnabled && topStaff.length > 0 && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            {[
-              {
-                title: "In-game Staff",
-                subtitle: "Currently active members",
-                users: activeUsers,
-                emptyText: "No staff are currently in-game",
-                icon: IconUsers,
-              },
-              {
-                title: "Inactive Staff",
-                subtitle: "Staff on inactivity notice",
-                users: inactiveUsers,
-                emptyText: "No staff are currently inactive",
-                icon: IconUserCircle,
-              },
-            ].map(({ title, subtitle, users, emptyText, icon: Icon }) => (
-              <div
-                key={title}
-                className="bg-white dark:bg-zinc-800 rounded-xl p-6 shadow-sm"
-              >
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="bg-primary/10 p-2 rounded-lg">
-                    <Icon className="w-5 h-5 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="text-base font-medium text-zinc-900 dark:text-white">
-                      {title}
-                    </h3>
-                    <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                      {subtitle}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {users.map((user: any) => (
-                    <Tooltip
-                      key={user.userId}
-                      tooltipText={
-                        user.reason
-                          ? `${user.username} | ${moment(user.from).format(
-                              "DD MMM"
-                            )} - ${moment(user.to).format("DD MMM")}`
-                          : `${user.username}`
-                      }
-                      orientation="top"
-                    >
-                      <div
-                        className={`w-10 h-10 rounded-full flex items-center justify-center ${getRandomBg(
-                          user.userId
-                        )} ring-2 ring-primary/10 hover:ring-primary/30 transition-all`}
-                      >
-                        <img
-                          src={user.picture}
-                          alt={user.username}
-                          className="w-10 h-10 rounded-full object-cover border-2 border-white"
-                          style={{ background: "transparent" }}
-                        />
-                      </div>
-                    </Tooltip>
-                  ))}
-                  {users.length === 0 && (
-                    <p className="text-sm text-zinc-500 dark:text-zinc-400 italic">
-                      {emptyText}
-                    </p>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
         <div className="mt-8">
           <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-sm overflow-hidden">
             <div className="flex items-center gap-3 p-4 border-b border-zinc-200 dark:border-zinc-600">
@@ -1140,45 +986,6 @@ function getRandomBg(userid: string, username?: string) {
   const index = (hash >>> 0) % BG_COLORS.length;
   return BG_COLORS[index];
 }
-
-const getPodiumIcon = (position: number) => {
-  switch (position) {
-    case 0:
-      return <IconCrown className="w-8 h-8 text-yellow-500" />;
-    case 1:
-      return <IconMedal className="w-7 h-7 text-gray-400" />;
-    case 2:
-      return <IconAward className="w-6 h-6 text-amber-600" />;
-    default:
-      return null;
-  }
-};
-
-const getPodiumHeight = (position: number) => {
-  switch (position) {
-    case 0:
-      return "h-32";
-    case 1:
-      return "h-24";
-    case 2:
-      return "h-20";
-    default:
-      return "h-16";
-  }
-};
-
-const getPodiumColors = (position: number) => {
-  switch (position) {
-    case 0:
-      return "bg-gradient-to-t from-yellow-400 to-yellow-300 border-yellow-500";
-    case 1:
-      return "bg-gradient-to-t from-gray-400 to-gray-300 border-gray-500";
-    case 2:
-      return "bg-gradient-to-t from-amber-600 to-amber-500 border-amber-700";
-    default:
-      return "bg-gradient-to-t from-zinc-300 to-zinc-200 border-zinc-400";
-  }
-};
 
 Activity.layout = workspace;
 

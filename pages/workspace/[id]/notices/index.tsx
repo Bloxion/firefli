@@ -454,7 +454,7 @@ const Notices: pageWithLayout<NoticesPageProps> = ({
       <Toaster position="bottom-center" />
       <div className="min-h-screen bg-gradient-to-b from-zinc-50 via-white to-zinc-50 dark:from-zinc-900 dark:via-zinc-950 dark:to-zinc-900">
         <div className="pagePadding">
-        <div className="max-w-7xl mx-auto">
+        <div>
           <div className="flex items-center gap-3 mb-6">
             <div>
               <h1 className="text-2xl font-medium text-zinc-900 dark:text-white">

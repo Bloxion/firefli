@@ -989,7 +989,7 @@ const Profile: pageWithLayout<pageProps> = ({
     <div className="min-h-screen bg-gradient-to-b from-zinc-50 via-white to-zinc-50 dark:from-zinc-900 dark:via-zinc-950 dark:to-zinc-900">
       <div className="pagePadding">
       <Toaster position="bottom-center" />
-      <div className="max-w-7xl mx-auto">
+      <div>
         <div className="bg-white dark:bg-zinc-800 rounded-xl p-4 sm:p-6 shadow-sm mb-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
             <div className="relative flex-shrink-0">

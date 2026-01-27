@@ -72,7 +72,7 @@ export const WorkspaceBirthdayPrompt: React.FC<WorkspaceBirthdayPromptProps> = (
   if (!open || !initialLoaded) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50 p-4">
+    <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-[999999] p-4">
       <motion.div
         initial={{ opacity: 0, scale: 0.98 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -85,7 +85,7 @@ export const WorkspaceBirthdayPrompt: React.FC<WorkspaceBirthdayPromptProps> = (
         <div className="px-6 py-5 sm:px-8">
           <div className="flex items-start gap-4">
             <div className="flex-shrink-0 mt-0.5">
-              <div className="h-12 w-12 rounded-lg bg-gradient-to-br from-[#ff66b2] to-[#ff0099] flex items-center justify-center text-white text-xl shadow-md">
+              <div className="h-12 w-12 rounded-lg bg-gradient-to-br from-[color:rgb(52,152,219)] to-[color:rgb(52,152,219,0.7)] flex items-center justify-center text-white text-xl shadow-md">
                 🎂
               </div>
             </div>
@@ -106,7 +106,7 @@ export const WorkspaceBirthdayPrompt: React.FC<WorkspaceBirthdayPromptProps> = (
                 id="bday-month"
                 value={month}
                 onChange={e => { setMonth(e.target.value); setDay(''); }}
-                className="w-full rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-700 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-[#ff0099]/40"
+                className="w-full rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-700 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-[color:rgb(52,152,219)]/40"
               >
                 <option value="">Month</option>
                 {months.map(m => <option key={m.value} value={m.value}>{m.name}</option>)}
@@ -117,7 +117,7 @@ export const WorkspaceBirthdayPrompt: React.FC<WorkspaceBirthdayPromptProps> = (
                 id="bday-day"
                 value={day}
                 onChange={e => setDay(e.target.value)}
-                className="w-full rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-700 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-[#ff0099]/40"
+                className="w-full rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-700 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-[color:rgb(52,152,219)]/40"
                 disabled={!month}
               >
                 <option value="">Day</option>
@@ -129,7 +129,7 @@ export const WorkspaceBirthdayPrompt: React.FC<WorkspaceBirthdayPromptProps> = (
               <button
                 type="submit"
                 disabled={loading || !day || !month}
-                className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-[#ff0099] hover:bg-[#ff0099]/95 text-white font-medium shadow-md disabled:opacity-60 disabled:cursor-not-allowed"
+                className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-[color:rgb(52,152,219)] hover:bg-[color:rgb(52,152,219,0.9)] text-white font-medium shadow-md disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {loading ? 'Saving...' : 'Save'}
               </button>

@@ -111,6 +111,33 @@ const Leaderboard: pageWithLayout = () => {
   const [activeUsers, setActiveUsers] = useState([]);
   const [inactiveUsers, setInactiveUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [leaderboardStyle, setLeaderboardStyle] = useState<"list" | "podium">("podium");
+
+  useEffect(() => {
+    if (id) {
+      fetch(`/api/workspace/${id}/settings/general/leaderboard`)
+        .then((res) => res.json())
+        .then((data) => {
+          let style = "podium";
+          let val = data.value ?? data;
+          if (typeof val === "string") {
+            try {
+              val = JSON.parse(val);
+            } catch {
+              val = {};
+            }
+          }
+          style =
+            typeof val === "object" && val !== null && "style" in val
+              ? (val as { style?: string }).style ?? "podium"
+              : "podium";
+          setLeaderboardStyle(style as "list" | "podium");
+        })
+        .catch(() => {
+          setLeaderboardStyle("podium");
+        });
+    }
+  }, [id]);
 
   useEffect(() => {
     async function fetchLeaderboardData() {
@@ -177,7 +204,7 @@ const Leaderboard: pageWithLayout = () => {
   if (loading) {
     return (
       <div className="pagePadding">
-        <div className="max-w-7xl mx-auto">
+        <div>
           <div className="flex items-center justify-center py-20">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
           </div>
@@ -188,21 +215,18 @@ const Leaderboard: pageWithLayout = () => {
 
   return (
     <div className="pagePadding">
-      <div className="max-w-7xl mx-auto">
+      <div>
         <div className="flex items-center gap-3 mb-8">
-          <div className="bg-primary/10 p-3 rounded-xl">
-            <IconTrophy className="w-8 h-8 text-primary" />
-          </div>
           <div>
-            <h1 className="text-3xl font-bold text-zinc-900 dark:text-white">
+            <h1 className="text-2xl font-medium text-zinc-900 dark:text-white">
               Leaderboard
             </h1>
-            <p className="text-lg text-zinc-500 dark:text-zinc-400 mt-1">
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
               Top performers and workspace statistics
             </p>
           </div>
         </div>
-        {topStaff.length > 0 && (
+        {topStaff.length > 0 && leaderboardStyle === "podium" && (
           <div className="mb-12">
             <div className="flex items-end justify-center gap-4 sm:gap-6 mb-8">
               {topStaff[1] && (
@@ -328,6 +352,87 @@ const Leaderboard: pageWithLayout = () => {
             </div>
           </div>
         )}
+        {topStaff.length > 0 && leaderboardStyle === "list" && (
+          <div className="bg-white dark:bg-zinc-800 border border-white/10 rounded-xl p-6 shadow-sm mb-8">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="bg-primary/10 p-3 rounded-xl">
+                <IconTrophy className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-zinc-900 dark:text-white">
+                  Top Performers
+                </h2>
+                <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                  Ranked by activity this period
+                </p>
+              </div>
+            </div>
+            <div className="space-y-3">
+              {topStaff.map((user: StaffMember, index: number) => {
+                const position = index + 1;
+                let bgColor = "bg-zinc-50 dark:bg-zinc-700";
+                let positionColor = "bg-zinc-300 dark:bg-zinc-600 text-zinc-700 dark:text-zinc-300";
+                let borderColor = "border-transparent";
+
+                if (position === 1) {
+                  bgColor = "bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20";
+                  positionColor = "bg-gradient-to-br from-yellow-400 to-amber-500 text-white";
+                  borderColor = "border-yellow-300 dark:border-yellow-700";
+                } else if (position === 2) {
+                  bgColor = "bg-gradient-to-r from-gray-50 to-slate-50 dark:from-gray-800/50 dark:to-slate-800/50";
+                  positionColor = "bg-gradient-to-br from-gray-400 to-slate-500 text-white";
+                  borderColor = "border-gray-300 dark:border-gray-600";
+                } else if (position === 3) {
+                  bgColor = "bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20";
+                  positionColor = "bg-gradient-to-br from-orange-500 to-amber-600 text-white";
+                  borderColor = "border-orange-300 dark:border-orange-700";
+                }
+
+                return (
+                  <div
+                    key={user.userId}
+                    className={`flex items-center justify-between p-3 rounded-lg ${bgColor} border ${borderColor} transition-all gap-3`}
+                  >
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <div
+                        className={`flex items-center justify-center w-10 h-10 rounded-full font-bold ${positionColor} text-sm flex-shrink-0 shadow-md`}
+                      >
+                        {position}
+                      </div>
+                      <div
+                        className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${getRandomBg(
+                          user.userId
+                        )} ring-2 ring-white dark:ring-zinc-700`}
+                      >
+                        <img
+                          src={user.picture}
+                          alt={user.username}
+                          className="w-10 h-10 rounded-full border-2 border-white dark:border-zinc-700 shadow-sm object-cover"
+                          style={{ background: "transparent" }}
+                        />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <span className="font-semibold text-zinc-900 dark:text-white truncate block">
+                          {user.username}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="text-right flex-shrink-0">
+                      <p className="font-bold text-lg text-zinc-900 dark:text-white whitespace-nowrap">
+                        {(() => {
+                          const minutes = Math.floor(user.ms / 1000 / 60);
+                          return `${minutes}m`;
+                        })()}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {leaderboardStyle === "podium" && (
         <div className="bg-white dark:bg-zinc-800 border border-white/10 rounded-xl p-6 shadow-sm mb-8">
           <div className="flex items-center gap-3 mb-6">
             <div className="bg-primary/10 p-2 rounded-lg">
@@ -392,6 +497,7 @@ const Leaderboard: pageWithLayout = () => {
             )}
           </div>
         </div>
+        )}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
           {[
             {

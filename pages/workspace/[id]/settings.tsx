@@ -286,7 +286,7 @@ const Settings: pageWithLayout<Props> = ({ users, roles, departments, grouproles
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-zinc-50 via-white to-zinc-50 dark:from-zinc-900 dark:via-zinc-950 dark:to-zinc-900">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="pagePadding">
         {/* Header */}
         <div className="mb-6">
           <h1 className="text-2xl font-semibold text-zinc-900 dark:text-white">Settings</h1>
@@ -330,7 +330,7 @@ const Settings: pageWithLayout<Props> = ({ users, roles, departments, grouproles
           </div>
 
           {/* Main Content */}
-          <div className="flex-1">
+          <div className="flex-1 max-w-4xl">
             <div className="mb-4">
               <h2 className="text-lg font-medium text-zinc-900 dark:text-white">
                 {SECTIONS[activeSection as keyof typeof SECTIONS]?.name || 'Settings'}

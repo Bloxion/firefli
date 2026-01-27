@@ -55,7 +55,7 @@ a {
 	}
 
 	.pagePadding {
-		@apply 2xl:px-48 lg:px-32 md:px-20 sm:px-14 px-8 py-20;
+		@apply 2xl:pr-12 lg:pr-10 md:pr-8 sm:pr-6 pr-4 md:pl-6 pl-4 py-8;
 	}
 
 }
@@ -68,6 +68,56 @@ a {
 	.scrollbar-hide::-webkit-scrollbar {
 		display: none;
 	}
+	
+	/* Safe area for mobile devices with notches/home indicators */
+	.safe-area-bottom {
+		padding-bottom: env(safe-area-inset-bottom, 0px);
+	}
+}
+
+::-webkit-scrollbar {
+	width: 8px;
+	height: 8px;
+	background: transparent;
+}
+
+::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+	background: transparent;
+	border-radius: 4px;
+	transition: background 0.2s ease;
+}
+
+*:hover::-webkit-scrollbar-thumb {
+	background: rgba(0, 0, 0, 0.3);
+}
+
+*:hover::-webkit-scrollbar-thumb:hover {
+	background: rgba(0, 0, 0, 0.5);
+}
+
+.dark *:hover::-webkit-scrollbar-thumb {
+	background: rgba(255, 255, 255, 0.3);
+}
+
+.dark *:hover::-webkit-scrollbar-thumb:hover {
+	background: rgba(255, 255, 255, 0.5);
+}
+
+* {
+	scrollbar-width: thin;
+	scrollbar-color: transparent transparent;
+}
+
+*:hover {
+	scrollbar-color: rgba(0, 0, 0, 0.3) transparent;
+}
+
+.dark *:hover {
+	scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
 }
 .dark input[type="date"]::-webkit-calendar-picker-indicator,
 .dark input[type="time"]::-webkit-calendar-picker-indicator {

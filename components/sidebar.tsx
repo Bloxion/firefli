@@ -3,56 +3,79 @@ import type { NextPage } from "next"
 import { loginState, workspacestate } from "@/state"
 import { themeState } from "@/state/theme"
 import { useRecoilState } from "recoil"
-import { Menu, Listbox, Dialog } from "@headlessui/react"
+import { Menu, Listbox, Dialog, Transition } from "@headlessui/react"
 import { useRouter } from "next/router"
 import {
-  IconHome,
-  IconHomeFilled,
-  IconMessage2,
-  IconMessage2Filled,
-  IconServer,
-  IconClipboardList,
-  IconClipboardListFilled,
-  IconBell,
-  IconBellFilled,
-  IconUser,
-  IconUserFilled,
-  IconSettings,
-  IconSettingsFilled,
-  IconChevronDown,
-  IconFileText,
-  IconFileTextFilled,
-  IconShield,
-  IconCheck,
-  IconRosetteDiscountCheck,
-  IconRosetteDiscountCheckFilled,
-  IconChevronLeft,
-  IconMenu2,
-  IconSun,
-  IconMoon,
-  IconX,
-  IconClock,
-  IconClockFilled,
-  IconTrophy,
-  IconTrophyFilled,
-  IconShieldFilled,
+  Home,
+  HomeOutlined,
+  Chat,
+  ChatOutlined,
+  Assignment,
+  AssignmentOutlined,
+  Notifications,
+  NotificationsOutlined,
+  Person,
+  PersonOutlined,
+  Settings,
+  SettingsOutlined,
+  KeyboardArrowDown,
+  Description,
+  DescriptionOutlined,
+  Shield,
+  ShieldOutlined,
+  Check,
+  Handshake,
+  HandshakeOutlined,
+  ChevronLeft,
+  ChevronRight,
+  Menu as MenuIcon,
+  LightMode,
+  DarkMode,
+  Close,
+  Schedule,
+  ScheduleOutlined,
+  EmojiEvents,
+  EmojiEventsOutlined,
+  TrackChanges,
+  Copyright,
+  MenuBook,
+  GitHub,
+  History,
+  BugReport,
+  Add,
+  Search,
+  Dashboard,
+  Leaderboard,
+  Timeline,
+  BarChart,
+} from "@mui/icons-material"
+import {
+  IconStar,
+  IconSparkles,
+  IconBriefcase,
   IconTarget,
-  IconCopyright,
-  IconBook,
-  IconBrandGithub,
-  IconHistory,
-  IconBug,
+  IconAlertTriangle,
+  IconCalendarWeekFilled,
+  IconSpeakerphone,
+  IconFile,
+  IconFolder,
+  IconBox,
+  IconId,
+  IconTools,
+  IconTag,
+  IconPin,
+  IconBell,
+  IconLock,
+  IconCoffee,
+  IconSchool,
+  IconPlus,
 } from "@tabler/icons-react"
+import { Fragment } from "react"
 import axios from "axios"
 import clsx from "clsx"
 import Parser from "rss-parser"
 import ReactMarkdown from "react-markdown";
 import packageJson from "../package.json";
-
-interface SidebarProps {
-  isCollapsed: boolean
-  setIsCollapsed: (value: boolean) => void
-}
 
 const ChangelogContent: React.FC<{ workspaceId: number }> = ({ workspaceId }) => {
   const [entries, setEntries] = useState<
@@ -100,12 +123,11 @@ const ChangelogContent: React.FC<{ workspaceId: number }> = ({ workspaceId }) =>
   );
 };
 
-const Sidebar: NextPage<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
+const Sidebar: NextPage = () => {
   const [login, setLogin] = useRecoilState(loginState)
   const [workspace, setWorkspace] = useRecoilState(workspacestate)
   const [theme, setTheme] = useRecoilState(themeState)
   const [showCopyright, setShowCopyright] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [showChangelog, setShowChangelog] = useState(false);
   const [changelog, setChangelog] = useState<{ title: string, pubDate: string, content: string }[]>([]);
   const [docsEnabled, setDocsEnabled] = useState(false);
@@ -117,18 +139,122 @@ const Sidebar: NextPage<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
   const [pendingNoticesCount, setPendingNoticesCount] = useState(0);
   const router = useRouter()
 
-  // Add body class to prevent scrolling when mobile menu is open
-  useEffect(() => {
-    if (isMobileMenuOpen) {
-      document.body.classList.add("overflow-hidden")
-    } else {
-      document.body.classList.remove("overflow-hidden")
-    }
-    return () => {
-      document.body.classList.remove("overflow-hidden")
-    }
-  }, [isMobileMenuOpen])
+  const ICON_OPTIONS: { key: string; Icon: any }[] = [
+    { key: "star", Icon: IconStar },
+    { key: "sparkles", Icon: IconSparkles },
+    { key: "briefcase", Icon: IconBriefcase },
+    { key: "target", Icon: IconTarget },
+    { key: "alert", Icon: IconAlertTriangle },
+    { key: "calendar", Icon: IconCalendarWeekFilled },
+    { key: "speakerphone", Icon: IconSpeakerphone },
+    { key: "file", Icon: IconFile },
+    { key: "folder", Icon: IconFolder },
+    { key: "box", Icon: IconBox },
+    { key: "id", Icon: IconId },
+    { key: "tools", Icon: IconTools },
+    { key: "tag", Icon: IconTag },
+    { key: "pin", Icon: IconPin },
+    { key: "bell", Icon: IconBell },
+    { key: "lock", Icon: IconLock },
+    { key: "coffee", Icon: IconCoffee },
+    { key: "school", Icon: IconSchool },
+  ];
 
+  const renderIcon = (key: string, className = "w-4 h-4") => {
+    const found = ICON_OPTIONS.find((i) => i.key === key);
+    if (!found) return null;
+    const C = found.Icon;
+    return <C className={className} />;
+  };
+
+  // Define section categories with their sub-pages
+  type SectionConfig = {
+    name: string;
+    icon: React.ElementType;
+    filledIcon?: React.ElementType;
+    accessible?: boolean;
+    href?: string;
+  };
+
+  const getSections = (): SectionConfig[] => {
+    if (!workspace?.groupId) return [];
+    
+    return [
+    { 
+      name: "Home", 
+      href: `/workspace/${workspace.groupId}`, 
+      icon: HomeOutlined, 
+      filledIcon: Home 
+    },
+    { 
+      name: "Wall", 
+      href: `/workspace/${workspace.groupId}/wall`, 
+      icon: ChatOutlined, 
+      filledIcon: Chat, 
+      accessible: workspace.yourPermission?.includes("view_wall") 
+    },
+    { 
+      name: "Activity", 
+      href: `/workspace/${workspace.groupId}/activity`,
+      icon: AssignmentOutlined, 
+      filledIcon: Assignment,
+      accessible: true
+    },
+    { 
+      name: "Leaderboard", 
+      href: `/workspace/${workspace.groupId}/leaderboard`,
+      icon: EmojiEventsOutlined, 
+      filledIcon: EmojiEvents,
+      accessible: true
+    },
+    ...(sessionsEnabled ? [{
+      name: "Sessions",
+      href: `/workspace/${workspace.groupId}/sessions`,
+      icon: NotificationsOutlined,
+      filledIcon: Notifications,
+      accessible: true,
+    }] : []),
+    ...(alliesEnabled ? [{
+      name: "Alliances",
+      href: `/workspace/${workspace.groupId}/alliances`,
+      icon: HandshakeOutlined,
+      filledIcon: Handshake,
+      accessible: true,
+    }] : []),
+    { 
+      name: "Staff", 
+      href: `/workspace/${workspace.groupId}/views`,
+      icon: PersonOutlined, 
+      filledIcon: Person,
+      accessible: workspace.yourPermission?.includes("view_members")
+    },
+    ...(noticesEnabled ? [{
+      name: "Notices",
+      href: `/workspace/${workspace.groupId}/notices`,
+      icon: ScheduleOutlined,
+      filledIcon: Schedule,
+      accessible: true,
+    }] : []),
+    ...(docsEnabled ? [{ 
+      name: "Docs", 
+      href: `/workspace/${workspace.groupId}/docs`, 
+      icon: DescriptionOutlined, 
+      filledIcon: Description, 
+      accessible: true 
+    }] : []),
+    ...(policiesEnabled ? [{ 
+      name: "Policies", 
+      href: `/workspace/${workspace.groupId}/policies`, 
+      icon: ShieldOutlined, 
+      filledIcon: Shield, 
+      accessible: true 
+    }] : []),
+  ];
+  };
+
+  const sections = getSections();
+
+  // Keep pages array for backward compatibility
   const pages: {
     name: string
     href: string
@@ -136,40 +262,42 @@ const Sidebar: NextPage<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
     filledIcon?: React.ElementType
     accessible?: boolean
   }[] = [
-    { name: "Home", href: `/workspace/${workspace.groupId}`, icon: IconHome, filledIcon: IconHomeFilled },
-    { name: "Wall", href: `/workspace/${workspace.groupId}/wall`, icon: IconMessage2, filledIcon: IconMessage2Filled, accessible: workspace.yourPermission.includes("view_wall") },
-    { name: "Activity", href: `/workspace/${workspace.groupId}/activity`, icon: IconClipboardList, filledIcon: IconClipboardListFilled, accessible: true },
-    { name: "Quotas", href: `/workspace/${workspace.groupId}/quotas`, icon: IconTarget, accessible: true },
+    { name: "Home", href: `/workspace/${workspace.groupId}`, icon: HomeOutlined, filledIcon: Home },
+    { name: "Wall", href: `/workspace/${workspace.groupId}/wall`, icon: ChatOutlined, filledIcon: Chat, accessible: workspace.yourPermission.includes("view_wall") },
+    { name: "Activity", href: `/workspace/${workspace.groupId}/activity`, icon: AssignmentOutlined, filledIcon: Assignment, accessible: true },
+    { name: "Quotas", href: `/workspace/${workspace.groupId}/quotas`, icon: TrackChanges, accessible: true },
    ...(noticesEnabled ? [{
       name: "Notices",
       href: `/workspace/${workspace.groupId}/notices`,
-      icon: IconClock,
-      filledIcon: IconClockFilled,
+      icon: ScheduleOutlined,
+      filledIcon: Schedule,
       accessible: true,
     }] : []),
     ...(alliesEnabled ? [{
       name: "Alliances",
       href: `/workspace/${workspace.groupId}/alliances`,
-      icon: IconRosetteDiscountCheck,
-      filledIcon: IconRosetteDiscountCheckFilled,
+      icon: HandshakeOutlined,
+      filledIcon: Handshake,
       accessible: true,
     }] : []),
     ...(sessionsEnabled ? [{
       name: "Sessions",
       href: `/workspace/${workspace.groupId}/sessions`,
-      icon: IconBell,
-      filledIcon: IconBellFilled,
+      icon: NotificationsOutlined,
+      filledIcon: Notifications,
       accessible: true,
     }] : []),
-    { name: "Staff", href: `/workspace/${workspace.groupId}/views`, icon: IconUser, filledIcon: IconUserFilled, accessible: workspace.yourPermission.includes("view_members") },
-    ...(docsEnabled ? [{ name: "Docs", href: `/workspace/${workspace.groupId}/docs`, icon: IconFileText, filledIcon: IconFileTextFilled, accessible: true }] : []),
-    ...(policiesEnabled ? [{ name: "Policies", href: `/workspace/${workspace.groupId}/policies`, icon: IconShield, filledIcon: IconShieldFilled, accessible: true }] : []),
-    { name: "Settings", href: `/workspace/${workspace.groupId}/settings`, icon: IconSettings, filledIcon: IconSettingsFilled, accessible: ["admin", "workspace_customisation", "reset_activity", "manage_features", "manage_apikeys", "view_audit_logs"].some(perm => workspace.yourPermission.includes(perm)) },
+    { name: "Staff", href: `/workspace/${workspace.groupId}/views`, icon: PersonOutlined, filledIcon: Person, accessible: workspace.yourPermission.includes("view_members") },
+    ...(docsEnabled ? [{ name: "Docs", href: `/workspace/${workspace.groupId}/docs`, icon: DescriptionOutlined, filledIcon: Description, accessible: true }] : []),
+    ...(policiesEnabled ? [{ name: "Policies", href: `/workspace/${workspace.groupId}/policies`, icon: ShieldOutlined, filledIcon: Shield, accessible: true }] : []),
   ];
+
+  const settingsAccessible = ["admin", "workspace_customisation", "reset_activity", "manage_features", "manage_apikeys", "view_audit_logs"].some(perm => workspace.yourPermission.includes(perm));
+  const settingsHref = `/workspace/${workspace.groupId}/settings`;
+  const isSettingsActive = router.asPath === settingsHref || router.asPath.startsWith(`${settingsHref}/`);
 
   const gotopage = (page: string) => {
     router.push(page)
-    setIsMobileMenuOpen(false)
   }
 
   const logout = async () => {
@@ -244,408 +372,181 @@ const Sidebar: NextPage<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
   }, [workspace.groupId, noticesEnabled, workspace.yourPermission]);
 
   return (
-    <>
-      {/* Mobile menu button */}
-      {!isMobileMenuOpen && (
-        <button
-          onClick={() => setIsMobileMenuOpen(true)}
-          className="lg:hidden fixed top-4 left-4 z-[999999] p-2 rounded-lg bg-white dark:bg-zinc-800 shadow"
-        >
-          <IconMenu2 className="w-6 h-6 text-zinc-700 dark:text-white" />
-        </button>
-      )}
-
-      {/* Mobile overlay */}
-      {isMobileMenuOpen && (
-        <div
-          className="lg:hidden fixed inset-0 bg-black/50 z-[99998]"
-          onClick={() => setIsMobileMenuOpen(false)}
-        />
-      )}
-      
-      {/* Sidebar */}
-      <div
-  		className={clsx(
-  			"fixed lg:static top-0 left-0 h-screen lg:w-auto z-[99999] transition-transform duration-300 flex flex-col",
-    		isMobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
-  		)}
+    <div className="hidden md:flex h-full flex-row">
+      {/* Main sidebar - always expanded on desktop */}
+      <aside
+        className={clsx(
+          "h-full flex flex-col pointer-events-auto shadow-xl transition-all duration-300",
+          "bg-white/80 dark:bg-zinc-800/80 backdrop-blur-sm",
+          "w-56 min-w-[14rem]",
+        )}
       >
-
-        <aside
-          className={clsx(
-            "h-screen flex flex-col pointer-events-auto shadow-xl transition-all duration-300",
-            "bg-white dark:bg-zinc-800 border-r border-gray-200 dark:border-zinc-700",
-            isCollapsed ? "w-[4.5rem]" : "w-64",
-          )}
-        >
-          <div className="h-full flex flex-col p-3 overflow-y-auto pb-20 lg:pb-3">
-            <div className="relative">
-              <Listbox
-                value={workspace.groupId}
-                onChange={(id) => {
-                  const selected = login.workspaces?.find((ws) => ws.groupId === id)
-                  if (selected) {
-                    setWorkspace({
-                      ...workspace,
-                      groupId: selected.groupId,
-                      groupName: selected.groupName,
-                      groupThumbnail: selected.groupThumbnail,
-                    })
-                    router.push(`/workspace/${selected.groupId}`)
-                  }
-                }}
-              >
-                <Listbox.Button
+        <div className="h-full flex flex-col p-3 overflow-y-auto pb-3">
+          <nav className="flex-1 space-y-1">
+            {sections.map((section) =>
+              (section.accessible === undefined || section.accessible) && (
+                <button
+                  key={section.name}
+                  onClick={() => {
+                    if (section.href) {
+                      gotopage(section.href);
+                    }
+                  }}
                   className={clsx(
-                    "w-full flex items-center gap-3 p-2 rounded-lg transition-all duration-300",
-                    "hover:bg-[color:rgb(var(--group-theme)/0.1)] hover:text-[color:rgb(var(--group-theme))]",
-                    "dark:hover:bg-zinc-700",
-                    isCollapsed && "justify-center"
+                    "rounded-lg text-sm font-medium transition-all duration-300 relative flex items-center gap-3 px-3 py-2 w-full",
+                    (section.href && router.asPath === section.href.replace("[id]", workspace.groupId.toString()))
+                      ? "bg-[color:rgb(var(--group-theme)/0.1)] text-[color:rgb(var(--group-theme))] font-semibold"
+                      : "text-zinc-700 dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-700",
                   )}
                 >
-                  <img
-                    src={workspace.groupThumbnail || "/favicon-32x32.png"}
-                    alt=""
-                    className={clsx(
-                      "w-10 h-10 rounded-lg object-cover transition-all duration-300",
-                      isCollapsed && "scale-90 opacity-80"
-                    )}
-                  />
-                  {!isCollapsed && (
-                    <div className="flex-1 min-w-0 text-left transition-all duration-300">
-                      <p className="text-sm font-medium truncate dark:text-white max-w-full">
-                        {workspace.groupName}
-                      </p>
-                      <p className="text-xs text-zinc-500 dark:text-white truncate max-w-full">
-                        Switch workspace
-                      </p>
-                    </div>
-                  )}
-                  {!isCollapsed && (
-                    <IconChevronDown className="w-4 h-4 text-zinc-400 dark:text-white transition-all duration-300" />
-                  )}
-                </Listbox.Button>
-              
-                <Listbox.Options
-                  className={clsx(
-                    "absolute top-0 left-0 z-50 w-[calc(100%-0.5rem)] mt-14 bg-white dark:bg-zinc-800 rounded-lg shadow-lg border dark:border-zinc-700 max-h-60 overflow-y-auto"
-                  )}
-                >
-                  {login?.workspaces && login.workspaces.length > 1 ? (
-                    login.workspaces
-                      .filter(ws => ws.groupId !== workspace.groupId)
-                      .map((ws) => (
-                        <Listbox.Option
-                          key={ws.groupId}
-                          value={ws.groupId}
-                          className={({ active }) =>
-                            clsx(
-                              "flex items-center gap-3 px-3 py-2 cursor-pointer rounded-md transition duration-200",
-                              active && "bg-[color:rgb(var(--group-theme)/0.1)] text-[color:rgb(var(--group-theme))]"
-                            )
-                          }
-                        >
-                          <img
-                            src={ws.groupThumbnail || "/placeholder.svg"}
-                            alt=""
-                            className="w-8 h-8 rounded-lg object-cover transition duration-200"
-                          />
-                          <span className="flex-1 truncate text-sm dark:text-white">{ws.groupName}</span>
-                          {workspace.groupId === ws.groupId && <IconCheck className="w-5 h-5 text-primary" />}
-                        </Listbox.Option>
-                      ))
-                  ) : (
-                    <div className="px-3 py-2 text-sm text-zinc-500 dark:text-zinc-400">
-                      No other workspaces
-                    </div>
-                  )}
-                </Listbox.Options>
-              </Listbox>
-            </div>
-
-            <nav className="flex-1 space-y-1 mt-4">
-              {pages.map((page) =>
-                (page.accessible === undefined || page.accessible) && (
-                  <button
-                    key={page.name}
-                    onClick={() => gotopage(page.href)}
-                    className={clsx(
-                      "w-full gap-3 px-2 py-2 rounded-lg text-sm font-medium transition-all duration-300 relative",
-                      router.asPath === page.href.replace("[id]", workspace.groupId.toString())
-                        ? "bg-[color:rgb(var(--group-theme)/0.1)] text-[color:rgb(var(--group-theme))] font-semibold"
-                        : "text-zinc-700 dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-700",
-                      isCollapsed ? "grid place-content-center" : "flex gap-2 items-center",
-                    )}
-                  >
+                  <div className="w-5 h-5 flex items-center justify-center flex-shrink-0">
                     {(() => {
-                      const IconComponent: React.ElementType =
-                        router.asPath === page.href.replace("[id]", workspace.groupId.toString())
-                          ? page.filledIcon || page.icon
-                          : page.icon;
+                      const isActive = (section.href && router.asPath === section.href.replace("[id]", workspace.groupId.toString()));
+                      const IconComponent: React.ElementType = isActive
+                        ? section.filledIcon || section.icon
+                        : section.icon;
                       return <IconComponent className="w-5 h-5" />;
                     })()}
-                    {!isCollapsed && (
-                      <div className="flex items-center gap-2">
-                        <span>{page.name}</span>
-                        {page.name === "Policies" && (
-                          <>
-                            <span className="px-1.5 py-0.5 text-xs font-medium bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 rounded-full">
-                              BETA
-                            </span>
-                            {pendingPolicyCount > 0 && (
-                              <span className="px-1.5 py-0.5 text-xs font-bold bg-red-500 text-white rounded-full">
-                                {pendingPolicyCount}
-                              </span>
-                            )}
-                          </>
-                        )}
-                        {page.name === "Notices" && pendingNoticesCount > 0 && (
-                          <span className="px-1.5 py-0.5 text-xs font-bold bg-amber-500 text-white rounded-full">
-                            {pendingNoticesCount}
-                          </span>
-                        )}
-                      </div>
-                    )}
-                    {isCollapsed && page.name === "Policies" && pendingPolicyCount > 0 && (
-                      <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
-                        {pendingPolicyCount}
-                      </span>
-                    )}
-                    {isCollapsed && page.name === "Notices" && pendingNoticesCount > 0 && (
-                      <span className="absolute -top-1 -right-1 w-5 h-5 bg-amber-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
-                        {pendingNoticesCount}
-                      </span>
-                    )}
-                  </button>
-                )
-              )}
-            </nav>
-
-            {!isCollapsed && (
-              <div className="mb-1">
-                <div className="flex items-center gap-0.2 mb-0.5 -ml-1">
-                  <button
-                    onClick={() => {
-                      setShowCopyright(true);
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-500 hover:text-primary transition-all duration-300"
-                    title="Copyright Notices"
-                  >
-                    <IconCopyright className="w-4 h-4" />
-                  </button>
-                  <a
-                    href="https://docs.firefli.net"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-500 hover:text-primary transition-all duration-300"
-                    title="Documentation"
-                  >
-                    <IconBook className="w-4 h-4" />
-                  </a>
-                  <a
-                    href="https://github.com/TeamFirefli/firefli"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-500 hover:text-primary transition-all duration-300"
-                    title="GitHub"
-                  >
-                    <IconBrandGithub className="w-4 h-4" />
-                  </a>
-                  <a
-                    href="https://feedback.firefli.net/bugs"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-500 hover:text-primary transition-all duration-300"
-                    title="Bug Reports"
-                  >
-                    <IconBug className="w-4 h-4" />
-                  </a>
-                </div>
-                <div className="flex items-center gap-1 text-sm text-zinc-500">
-                  <span>Firefli v{packageJson.version}</span>
-                  <button
-                    onClick={() => {
-                      setShowChangelog(true);
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className="p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-700 hover:text-primary transition-all duration-300"
-                    title="Changelog"
-                  >
-                    <IconHistory className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              </div>
+                  </div>
+                  <span className="truncate">{section.name}</span>
+                  {section.name === "Policies" && pendingPolicyCount > 0 && (
+                    <span className="ml-auto w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center flex-shrink-0">
+                      {pendingPolicyCount}
+                    </span>
+                  )}
+                  {section.name === "Activity" && pendingNoticesCount > 0 && (
+                    <span className="ml-auto w-5 h-5 bg-amber-500 text-white text-xs font-bold rounded-full flex items-center justify-center flex-shrink-0">
+                      {pendingNoticesCount}
+                    </span>
+                  )}
+                </button>
+              )
             )}
+          </nav>
 
-            <Menu as="div" className="relative">
-              <Menu.Button
-                className={clsx(
-                  "w-full flex items-center gap-3 p-2 rounded-lg transition-all duration-300",
-                  "hover:bg-[color:rgb(var(--group-theme)/0.1)] hover:text-[color:rgb(var(--group-theme))]",
-                  "dark:hover:bg-zinc-700",
-                  isCollapsed ? "justify-center" : "justify-start"
+          {/* Settings button */}
+          {settingsAccessible && (
+            <button
+              onClick={() => {
+                gotopage(settingsHref);
+              }}
+              className={clsx(
+                "rounded-lg text-sm font-medium transition-all duration-300 mb-1 flex items-center gap-3 px-3 py-2 w-full",
+                isSettingsActive
+                  ? "bg-[color:rgb(var(--group-theme)/0.1)] text-[color:rgb(var(--group-theme))] font-semibold"
+                  : "text-zinc-700 dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-700",
+              )}
+            >
+              <div className="w-5 h-5 flex items-center justify-center flex-shrink-0">
+                {isSettingsActive ? (
+                  <Settings className="w-5 h-5" />
+                ) : (
+                  <SettingsOutlined className="w-5 h-5" />
                 )}
+              </div>
+              <span className="truncate">Settings</span>
+            </button>
+          )}
+        </div>
+      </aside>
+
+      {/* Dialogs */}
+      <Dialog
+        open={showCopyright}
+        onClose={() => setShowCopyright(false)}
+        className="relative z-50"
+      >
+        <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+
+        <div className="fixed inset-0 flex items-center justify-center p-4">
+          <Dialog.Panel className="mx-auto max-w-sm rounded-lg bg-white dark:bg-zinc-800 p-6 shadow-xl">
+            <div className="flex items-center justify-between mb-4">
+              <Dialog.Title className="text-lg font-medium text-zinc-900 dark:text-white">
+                Copyright Notices
+              </Dialog.Title>
+              <button
+                onClick={() => setShowCopyright(false)}
+                className="p-1 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700"
               >
-                <img
-                  src={login?.thumbnail || "/placeholder.svg"}
-                  alt=""
+                <Close className="w-5 h-5 text-zinc-500" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+
+              <div>
+                <h3 className="text-sm font-medium text-zinc-900 dark:text-white mb-1">
+                  Firefli features, enhancements, and modifications:
+                </h3>
+                <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                  Copyright © 2026 Firefli. All rights reserved.
+                </p>
+              </div>
+
+              <div>
+                <h3 className="text-sm font-medium text-zinc-900 dark:text-white mb-1">
+                  Orbit features, enhancements, and modifications:
+                </h3>
+                <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                  Copyright © 2025 Planetary. All rights reserved.
+                </p>
+              </div>
+
+              <div>
+                <h3 className="text-sm font-medium text-zinc-900 dark:text-white mb-1">
+                  Original Tovy features and code:
+                </h3>
+                <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                  Copyright © 2022 Tovy. All rights reserved.
+                </p>
+              </div>
+            </div>
+          </Dialog.Panel>
+        </div>
+      </Dialog>
+
+      <Dialog
+        open={showChangelog}
+        onClose={() => setShowChangelog(false)}
+        className="relative z-50"
+      >
+        <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+        <div className="fixed inset-0 flex items-center justify-center p-4">
+          <Dialog.Panel className="mx-auto max-w-lg rounded-lg bg-white dark:bg-zinc-800 p-6 shadow-xl">
+            <div className="flex items-center justify-between mb-4">
+              <Dialog.Title className="text-lg font-medium text-zinc-900 dark:text-white">
+                Changelog
+              </Dialog.Title>
+              <button
+                onClick={() => setShowChangelog(false)}
+                className="p-1 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700">
+                <Close className="w-5 h-5 text-zinc-500" />
+              </button>
+            </div>
+            <div className="space-y-6 max-h-96 overflow-y-auto">
+              {changelog.length === 0 && <p className="text-sm text-zinc-500">Loading...</p>}
+              {changelog.map((entry, idx) => (
+                <div 
+                  key={idx}
                   className={clsx(
-                    "w-10 h-10 rounded-lg object-cover transition-all duration-300",
-                    isCollapsed && "scale-90 opacity-80"
+                    "pb-6",
+                    idx < changelog.length - 1 && "border-b border-zinc-200 dark:border-zinc-700"
                   )}
-                />
-                {!isCollapsed && (
-                  <div className="flex-1 min-w-0 text-left transition-all duration-300">
-                    <p className="text-sm font-medium truncate dark:text-white">{login?.displayname}</p>
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">
-                      Manage account
-                    </p>
-                  </div>
-                )}
-                {!isCollapsed && (
-                  <IconChevronDown className="w-4 h-4 text-zinc-400 dark:text-white transition-all duration-300" />
-                )}
-              </Menu.Button>
-          
-              <Menu.Items className="absolute bottom-14 left-0 w-full bg-white dark:bg-zinc-700 rounded-lg shadow-lg z-50 py-2">
-                  <Menu.Item>
-                  {({ active }) => (
-                    <button
-                      onClick={toggleTheme}
-                      className={clsx(
-                        "w-full text-left px-4 py-2 text-sm text-zinc-700 dark:text-white transition-all duration-200",
-                        active && "bg-zinc-100 dark:bg-zinc-600"
-                      )}
-                    >
-                      {theme === "dark" ? (
-                        <div className="flex items-center gap-2">
-                          <IconSun className="w-4 h-4" /> Light Mode
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-2">
-                          <IconMoon className="w-4 h-4" /> Dark Mode
-                        </div>
-                      )}
-                    </button>
-                  )}
-                </Menu.Item>
-                
-                <Menu.Item>
-                  {({ active }) => (
-                    <button
-                      onClick={logout}
-                      className={clsx(
-                        "w-full text-left px-4 py-2 text-sm text-red-500 transition-all duration-200",
-                        active && "bg-red-50 dark:bg-red-900/40"
-                      )}
-                    >
-                      Logout
-                    </button>
-                  )}
-                </Menu.Item>
-              </Menu.Items>
-            </Menu>
-          </div>
-
-          <Dialog
-            open={showCopyright}
-            onClose={() => setShowCopyright(false)}
-            className="relative z-50"
-          >
-            <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
-
-            <div className="fixed inset-0 flex items-center justify-center p-4">
-              <Dialog.Panel className="mx-auto max-w-sm rounded-lg bg-white dark:bg-zinc-800 p-6 shadow-xl">
-                <div className="flex items-center justify-between mb-4">
-                  <Dialog.Title className="text-lg font-medium text-zinc-900 dark:text-white">
-                    Copyright Notices
-                  </Dialog.Title>
-                  <button
-                    onClick={() => setShowCopyright(false)}
-                    className="p-1 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700"
-                  >
-                    <IconX className="w-5 h-5 text-zinc-500" />
-                  </button>
-                </div>
-
-                <div className="space-y-4">
-
-                  <div>
-                    <h3 className="text-sm font-medium text-zinc-900 dark:text-white mb-1">
-                      Firefli features, enhancements, and modifications:
-                    </h3>
-                    <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                      Copyright © 2026 Firefli. All rights reserved.
-                    </p>
-                  </div>
-
-                  <div>
-                    <h3 className="text-sm font-medium text-zinc-900 dark:text-white mb-1">
-                      Orbit features, enhancements, and modifications:
-                    </h3>
-                    <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                      Copyright © 2025 Planetary. All rights reserved.
-                    </p>
-                  </div>
-
-                  <div>
-                    <h3 className="text-sm font-medium text-zinc-900 dark:text-white mb-1">
-                      Original Tovy features and code:
-                    </h3>
-                    <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                      Copyright © 2022 Tovy. All rights reserved.
-                    </p>
+                >
+                  <a target="_blank" rel="noopener noreferrer" className="font-semibold text-primary hover:underline">
+                    {entry.title}
+                  </a>
+                  <div className="text-xs text-zinc-400 mt-1 mb-3">{entry.pubDate}</div>
+                  <div className="text-sm text-zinc-700 dark:text-zinc-300 prose prose-sm dark:prose-invert max-w-none prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-headings:my-2">
+                    <ReactMarkdown>{entry.content}</ReactMarkdown>
                   </div>
                 </div>
-              </Dialog.Panel>
+              ))}
             </div>
-          </Dialog>
-
-          <Dialog
-            open={showChangelog}
-            onClose={() => setShowChangelog(false)}
-            className="relative z-50"
-          >
-            <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
-            <div className="fixed inset-0 flex items-center justify-center p-4">
-              <Dialog.Panel className="mx-auto max-w-lg rounded-lg bg-white dark:bg-zinc-800 p-6 shadow-xl">
-                <div className="flex items-center justify-between mb-4">
-                  <Dialog.Title className="text-lg font-medium text-zinc-900 dark:text-white">
-                    Changelog
-                  </Dialog.Title>
-                  <button
-                    onClick={() => setShowChangelog(false)}
-                    className="p-1 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700">
-                    <IconX className="w-5 h-5 text-zinc-500" />
-                  </button>
-                </div>
-                <div className="space-y-6 max-h-96 overflow-y-auto">
-                  {changelog.length === 0 && <p className="text-sm text-zinc-500">Loading...</p>}
-                  {changelog.map((entry, idx) => (
-                    <div 
-                      key={idx}
-                      className={clsx(
-                        "pb-6",
-                        idx < changelog.length - 1 && "border-b border-zinc-200 dark:border-zinc-700"
-                      )}
-                    >
-                      <a target="_blank" rel="noopener noreferrer" className="font-semibold text-primary hover:underline">
-                        {entry.title}
-                      </a>
-                      <div className="text-xs text-zinc-400 mt-1 mb-3">{entry.pubDate}</div>
-                      <div className="text-sm text-zinc-700 dark:text-zinc-300 prose prose-sm dark:prose-invert max-w-none prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-headings:my-2">
-                        <ReactMarkdown>{entry.content}</ReactMarkdown>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </Dialog.Panel>
-            </div>
-          </Dialog>
-        </aside>
-      </div>
-    </>
+          </Dialog.Panel>
+        </div>
+      </Dialog>
+    </div>
   )
 }
 

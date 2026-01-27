@@ -14,13 +14,13 @@ const ThemeToggle = () => {
   return (
     <button
       onClick={toggleTheme}
-      className="p-2 rounded-full bg-zinc-200 dark:bg-zinc-700 transition hover:scale-105"
+      className="p-1 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700 transition"
       title="Toggle theme"
     >
       {theme === "dark" ? (
         <SunIcon className="w-5 h-5 text-yellow-400" />
       ) : (
-        <MoonIcon className="w-5 h-5 text-zinc-800" />
+        <MoonIcon className="w-5 h-5 text-zinc-600" />
       )}
     </button>
   );

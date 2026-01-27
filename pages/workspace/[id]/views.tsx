@@ -820,22 +820,15 @@ const Views: pageWithLayout<pageProps> = ({ isAdmin, hasManageViewsPerm, hasCrea
   return (
     <div className="min-h-screen bg-gradient-to-b from-zinc-50 via-white to-zinc-50 dark:from-zinc-900 dark:via-zinc-950 dark:to-zinc-900">
       <Toaster position="bottom-center" />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="pagePadding">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-start gap-4">
-            <div className="bg-gradient-to-br from-[#ff0099]/20 to-[#ff0099]/10 p-3 rounded-lg flex-shrink-0">
-              <IconUsers className="w-6 h-6 text-[#ff0099]" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-zinc-900 dark:text-white">
-                Staff Management
-              </h1>
-              <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-                View and manage your staff members
-              </p>
-            </div>
-          </div>
+        <div className="mb-6">
+          <h1 className="text-2xl font-medium text-zinc-900 dark:text-white">
+            Staff Management
+          </h1>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
+            View and manage your staff members
+          </p>
         </div>
 
         <div className="flex gap-6">
@@ -864,70 +857,70 @@ const Views: pageWithLayout<pageProps> = ({ isAdmin, hasManageViewsPerm, hasCrea
                       </p>
                     )}
                     {savedViews.map((v) => (
-                    <div
-                      key={v.id}
-                      className={`flex items-center justify-between gap-2 px-3 py-2 rounded-md ${
-                        selectedViewId === v.id
-                          ? "bg-zinc-50 dark:bg-zinc-800/40 border-l-4 border-[#ff0099]"
-                          : "hover:bg-zinc-50 dark:hover:bg-zinc-700/40"
-                      }`}
-                      style={{ minWidth: 0 }}
-                    >
-                      <button
-                        onClick={() => {
-                          if (selectedViewId === v.id) {
-                            resetToDefault();
-                          } else {
-                            setSelectedViewId(v.id);
-                            applySavedView(v);
-                          }
-                        }}
-                        className="flex items-center gap-3 text-left w-full"
+                      <div
+                        key={v.id}
+                        className={`flex items-center justify-between gap-2 px-3 py-2 rounded-md ${
+                          selectedViewId === v.id
+                            ? "bg-zinc-50 dark:bg-zinc-800/40 border-l-4 border-[#ff0099]"
+                            : "hover:bg-zinc-50 dark:hover:bg-zinc-700/40"
+                        }`}
+                        style={{ minWidth: 0 }}
                       >
-                        <span
-                          className="w-8 h-8 rounded-md flex items-center justify-center flex-shrink-0"
-                          style={{ background: v.color || "#e5e7eb" }}
+                        <button
+                          onClick={() => {
+                            if (selectedViewId === v.id) resetToDefault();
+                            else {
+                              setSelectedViewId(v.id);
+                              applySavedView(v);
+                            }
+                          }}
+                          className="flex items-center gap-3 text-left w-full"
                         >
-                          {v.icon ? (
-                            renderIcon(
-                              v.icon,
-                              "w-4 h-4 text-zinc-900 dark:text-zinc-700"
-                            )
-                          ) : (
-                            <span className="text-sm font-medium text-zinc-900 dark:text-white">
-                              {(v.name || "").charAt(0).toUpperCase()}
-                            </span>
-                          )}
-                        </span>
-
-                        <span className="text-sm font-medium truncate text-zinc-900 dark:text-white">
-                          {v.name}
-                        </span>
-                      </button>
-
-                      <div className="flex items-center gap-1">
-                        {hasDeleteViews() && (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setViewToDelete(v.id);
-                              setShowDeleteModal(true);
-                            }}
-                            className="p-1.5 rounded-md text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition"
-                            title="Delete View"
+                          <span
+                            className="w-8 h-8 rounded-md flex items-center justify-center flex-shrink-0"
+                            style={{ background: v.color || "#e5e7eb" }}
                           >
-                            <IconX className="w-4 h-4" />
-                          </button>
-                        )}
+                            {v.icon ? (
+                              renderIcon(
+                                v.icon,
+                                "w-4 h-4 text-zinc-900 dark:text-white"
+                              )
+                            ) : (
+                              <span className="text-sm font-medium text-zinc-900 dark:text-white">
+                                {(v.name || "").charAt(0).toUpperCase()}
+                              </span>
+                            )}
+                          </span>
+
+                          <span className="text-sm font-medium truncate text-zinc-900 dark:text-white">
+                            {v.name}
+                          </span>
+                        </button>
+
+                        <div className="flex items-center gap-1">
+                          {hasDeleteViews() && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setViewToDelete(v.id);
+                                setShowDeleteModal(true);
+                              }}
+                              className="p-1.5 rounded-md text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition"
+                              title="Delete View"
+                            >
+                              <IconX className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
             </aside>
           )}
 
+          {/* Mobile dropdown for saved views */}
           {hasUseSavedViews() && (
             <div className="md:hidden w-full mb-4">
               <div className="bg-white dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3">

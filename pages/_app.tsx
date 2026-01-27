@@ -23,6 +23,7 @@ import {
 } from "chart.js";
 import { themeState } from "@/state/theme";
 import AuthProvider from "./AuthProvider";
+import HelpWidget from "@/components/helpwidget";
 import axios from "axios";
 import { loginState } from "@/state";
 
@@ -119,6 +120,17 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
     Component.layout ||
     (({ children }: { children: React.ReactNode }) => <>{children}</>);
 
+  // Scroll to top on route change
+  useEffect(() => {
+    const handleRouteChange = () => {
+      window.scrollTo(0, 0);
+    };
+    Router.events.on("routeChangeComplete", handleRouteChange);
+    return () => {
+      Router.events.off("routeChangeComplete", handleRouteChange);
+    };
+  }, []);
+
   return (
     <RecoilRoot>
       <Head>
@@ -134,6 +146,7 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
       <Initializer />
       <ThemeHandler />
       <ColorThemeHandler />
+      <HelpWidget />
 
       {!loading ? (
         <Layout>

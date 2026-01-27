@@ -532,7 +532,7 @@ const Home: pageWithLayout<InferGetServerSidePropsType<GetServerSideProps>> = ({
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-6">
+    <div className="pagePadding">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
         <div className="flex items-center gap-3">

@@ -3,9 +3,11 @@ import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
 import Sidebar from "@/components/sidebar";
+import Topbar from "@/components/topbar";
+import BottomBar from "@/components/bottombar";
+import HelpWidget from "@/components/helpwidget";
 import type { LayoutProps } from "@/layoutTypes";
 import axios from "axios";
-import { Transition } from "@headlessui/react";
 import { useRecoilState } from "recoil";
 import { workspacestate } from "@/state";
 import { useRouter } from "next/router";
@@ -13,7 +15,6 @@ import hexRgb from "hex-rgb";
 import * as colors from "tailwindcss/colors";
 import WorkspaceBirthdayPrompt from '@/components/bdayprompt';
 import { useEffect, useState } from "react";
-import { IconChevronLeft, IconChevronRight, IconMenu2 } from "@tabler/icons-react";
 import clsx from 'clsx';
 
 
@@ -21,9 +22,6 @@ const workspace: LayoutProps = ({ children }) => {
 	const [workspace, setWorkspace] = useRecoilState(workspacestate);
 	const router = useRouter();
 	const [loading, setLoading] = useState(false);
-	const [isCollapsed, setIsCollapsed] = useState(false);
-	const [isMobile, setIsMobile] = useState(false);
-	const [open, setOpen] = useState(true);
 
 	const useTheme = (groupTheme: string) => {
 		// Handle custom colors
@@ -106,56 +104,35 @@ const workspace: LayoutProps = ({ children }) => {
 		}
 	}, [workspace]);
 
-	useEffect(() => {
-		const checkMobile = () => {
-			setIsMobile(window.innerWidth < 768);
-			setOpen(window.innerWidth >= 768);
-		};
-
-		checkMobile();
-		window.addEventListener("resize", checkMobile);
-		return () => window.removeEventListener("resize", checkMobile);
-	}, []);
-
-	return (
-		<div className="h-screen bg-zinc-50 dark:bg-zinc-900 overflow-hidden">
+		// Use workspace color or fallback to bg-firefli
+		const workspaceBg = workspace && workspace.groupTheme ? "" : "bg-firefli";
+		return (
+			<div className={clsx("h-screen overflow-hidden", workspaceBg || "bg-zinc-50 dark:bg-zinc-900")}> 
 			<Head>
 				<title>{workspace.groupName ? `Firefli - ${workspace.groupName}` : "Loading..."}</title>
 				<link rel="icon" href={`${workspace.groupThumbnail}`} />
 			</Head>
 
-			<Transition
-				show={open}
-				enter="transition-opacity duration-300"
-				enterFrom="opacity-0"
-				enterTo="opacity-100"
-				leave="transition-opacity duration-300"
-				leaveFrom="opacity-100"
-				leaveTo="opacity-0"
-			>
-				<div
-					className={`fixed inset-0 bg-black bg-opacity-50 z-20 ${
-						!isMobile ? "hidden" : ""
-					}`}
-					onClick={() => setOpen(false)}
-				/>
-			</Transition>
-
-			<div className="flex h-screen">
-				<Sidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
-				
-				<main
-		  			className={clsx(
-		    		"flex-1 transition-all duration-300 overflow-y-auto",
-		    		!isMobile && (isCollapsed ? "ml-16" : "ml-60")
-		  			)}>
-		  			<div className="relative z-10">
-		    		{children}
-		  			</div>
-		  			{router.query.id && (
-		  				<WorkspaceBirthdayPrompt workspaceId={router.query.id as string} />
-		  			)}
-				</main>
+			<div className="flex flex-col h-screen">
+				<Topbar />
+				<div className="flex flex-1 overflow-hidden">
+					<Sidebar />
+					
+					<main
+						className={clsx(
+						"flex-1 transition-all duration-300 overflow-y-auto",
+						"pb-20 md:pb-0"
+						)}>
+						<div className="relative z-10">
+						{children}
+						</div>
+						{router.query.id && (
+							<WorkspaceBirthdayPrompt workspaceId={router.query.id as string} />
+						)}
+					</main>
+				</div>
+				<BottomBar />
+				<HelpWidget />
 			</div>
 		</div>
 	);

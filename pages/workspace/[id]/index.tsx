@@ -136,7 +136,7 @@ const Home: pageWithLayout = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-zinc-50 via-white to-zinc-50 dark:from-zinc-900 dark:via-zinc-950 dark:to-zinc-900">
       <div className="pagePadding">
-      <div className="max-w-7xl mx-auto">
+      <div>
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
           <div className="relative">
             <div className="absolute -left-3 -top-3 w-20 h-20 bg-primary/5 rounded-full blur-2xl"></div>
@@ -147,10 +147,10 @@ const Home: pageWithLayout = () => {
                   titleVisible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0",
                 )}
               >
-                <span className="text-xs font-medium text-primary uppercase tracking-wider mb-1 block">
+                <span className="text-xs font-normal text-primary tracking-wider mb-1 block">
                   Welcome back
                 </span>
-                <h1 className="text-4xl font-extrabold text-zinc-900 dark:text-white mb-2 bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70">
+                <h1 className="text-4xl font-semibold text-zinc-900 dark:text-white mb-2 bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70">
                   {text}
                 </h1>
                 <div
@@ -164,16 +164,6 @@ const Home: pageWithLayout = () => {
                 </p>
               </div>
             </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={handleRefresh}
-              className="p-2 rounded-full bg-white dark:bg-zinc-800 shadow-sm hover:shadow transition-all duration-200 text-zinc-500 dark:text-zinc-300 hover:text-primary dark:hover:text-primary"
-              aria-label="Refresh dashboard"
-            >
-              <IconRefresh className={clsx("w-5 h-5", refreshing && "animate-spin")} />
-            </button>
-           
           </div>
         </div>
         {Array.isArray(workspace.settings.widgets) && workspace.settings.widgets.includes("new_members") && (
