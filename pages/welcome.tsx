@@ -1,6 +1,7 @@
 import type { NextPage } from "next";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { loginState } from "@/state";
+import { themeState } from "@/state/theme";
 import { useRecoilState } from "recoil";
 import { useForm, FormProvider } from "react-hook-form";
 import Router from "next/router";
@@ -23,6 +24,114 @@ const Login: NextPage = () => {
 	const signupform = useForm<FormData>();
 	const { register, handleSubmit, watch, formState: { errors } } = methods;
 	const [selectedSlide, setSelectedSlide] = useState(0);
+
+	const canvasRef = useRef<HTMLCanvasElement>(null);
+	const [theme] = useRecoilState(themeState);
+	const [mounted, setMounted] = useState(false);
+	const isDarkModeRef = useRef(false);
+
+	useEffect(() => {
+		setMounted(true);
+	}, []);
+
+	useEffect(() => {
+		if (!mounted) return;
+		const isDark = theme === "dark";
+		isDarkModeRef.current = isDark;
+	}, [mounted, theme]);
+
+	useEffect(() => {
+		if (!mounted) return;
+		
+		const canvas = canvasRef.current;
+		if (!canvas) return;
+
+		const ctx = canvas.getContext("2d");
+		if (!ctx) return;
+
+		let width = window.innerWidth;
+		let height = window.innerHeight;
+		let animationId: number;
+		let time = 0;
+
+		canvas.width = width;
+		canvas.height = height;
+
+		const animate = () => {
+			width = window.innerWidth;
+			height = window.innerHeight;
+			canvas.width = width;
+			canvas.height = height;
+
+			time += 0.005;
+			const dark = isDarkModeRef.current;
+			
+			if (dark) {
+				const bgGrad = ctx.createLinearGradient(0, 0, width, height);
+				bgGrad.addColorStop(0, "#0a0a0f");
+				bgGrad.addColorStop(0.3, "#1a1a2e");
+				bgGrad.addColorStop(0.6, "#16213e");
+				bgGrad.addColorStop(1, "#0f0f1a");
+				ctx.fillStyle = bgGrad;
+			} else {
+				const bgGrad = ctx.createLinearGradient(0, 0, width, height);
+				bgGrad.addColorStop(0, "#a8edea");
+				bgGrad.addColorStop(0.5, "#fed6e3");
+				bgGrad.addColorStop(1, "#d299c2");
+				ctx.fillStyle = bgGrad;
+			}
+			ctx.fillRect(0, 0, width, height);
+			const waveCount = 4;
+			for (let w = 0; w < waveCount; w++) {
+				ctx.beginPath();
+				
+				const waveOffset = w * 0.5;
+				const amplitude = 30 + w * 15;
+				const frequency = 0.003 + w * 0.001;
+				const yBase = height * (0.5 + w * 0.12);
+				
+				ctx.moveTo(0, height);
+				
+				for (let x = 0; x <= width; x += 5) {
+					const y = yBase + 
+						Math.sin(x * frequency + time + waveOffset) * amplitude +
+						Math.sin(x * frequency * 2 + time * 1.5 + waveOffset) * (amplitude * 0.5);
+					ctx.lineTo(x, y);
+				}
+				ctx.lineTo(width, height);
+				ctx.closePath();
+				const waveGrad = ctx.createLinearGradient(0, yBase - amplitude, width, yBase + amplitude);
+				const alpha = 0.15 - w * 0.03;
+				
+				if (dark) {
+					waveGrad.addColorStop(0, `rgba(99, 102, 241, ${alpha})`);
+					waveGrad.addColorStop(0.5, `rgba(139, 92, 246, ${alpha})`);
+					waveGrad.addColorStop(1, `rgba(59, 130, 246, ${alpha})`);
+				} else {
+					waveGrad.addColorStop(0, `rgba(244, 114, 182, ${alpha + 0.1})`);
+					waveGrad.addColorStop(0.5, `rgba(168, 85, 247, ${alpha + 0.1})`);
+					waveGrad.addColorStop(1, `rgba(99, 102, 241, ${alpha + 0.1})`);
+				}
+				ctx.fillStyle = waveGrad;
+				ctx.fill();
+			}
+
+			animationId = requestAnimationFrame(animate);
+		};
+		animate();
+
+		const resize = () => {
+			canvas.width = window.innerWidth;
+			canvas.height = window.innerHeight;
+		};
+		
+		window.addEventListener("resize", resize);
+		
+		return () => {
+			window.removeEventListener("resize", resize);
+			cancelAnimationFrame(animationId);
+		};
+	}, [mounted]);
 
 	async function createAccount() {
 		setIsLoading(true);
@@ -117,11 +226,17 @@ const Login: NextPage = () => {
 	];
 
 	return (
-		<div className="flex bg-infobg-light dark:bg-infobg-dark h-screen bg-no-repeat bg-cover bg-center">
-			<p className="text-md -mt-1 text-white absolute top-4 left-4 xs:hidden md:text-6xl font-extrabold">
-				👋 Welcome <br /> to <span className="text-pink-100 "> Firefli </span>
-			</p>
-			<Slider activeSlide={selectedSlide}>
+		<div className="relative flex h-screen overflow-hidden">
+			<canvas
+				ref={canvasRef}
+				className="absolute inset-0 w-full h-full"
+				style={{ zIndex: 0 }}
+			/>
+			<div className="relative z-10 flex w-full h-full">
+				<p className="text-md -mt-1 text-white absolute top-4 left-4 xs:hidden md:text-6xl font-extrabold">
+					👋 Welcome <br /> to <span className="text-pink-100 "> Firefli </span>
+				</p>
+				<Slider activeSlide={selectedSlide}>
 				<div>
 					<p className="font-bold text-2xl dark:text-white">Let's get started</p>
 					<p className="text-md -mt-1 text-zinc-500 dark:text-zinc-200">
@@ -259,6 +374,7 @@ const Login: NextPage = () => {
 					</div>
 				</div>
 			</Slider>
+			</div>
 		</div>
 	);
 };
