@@ -35,20 +35,17 @@ export async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
     "attachment; filename=Firefli-activity.rbxmx"
   );
 
-  // Fix the protocol handling to ensure it's a valid protocol string
   let protocol =
     req.headers["x-forwarded-proto"] ||
     req.headers.referer?.split("://")[0] ||
     "http";
 
-  // Clean up protocol if it contains commas (Cloud hosting)
   if (typeof protocol === "string") {
     protocol = protocol.split(",")[0];
   } else if (Array.isArray(protocol)) {
     protocol = protocol[0].split(",")[0];
   }
 
-  // use PLANETARY_CLOUD_URL if available, else use VERCEL_URL if available, else use the host
   const host = req.headers.host;
 
   let currentUrl = new URL(`${protocol}://${host}`);
