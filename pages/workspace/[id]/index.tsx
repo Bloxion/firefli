@@ -134,7 +134,8 @@ const Home: pageWithLayout = () => {
   }
 
   return (
-    <div className="pagePadding">
+    <div className="min-h-screen bg-gradient-to-b from-zinc-50 via-white to-zinc-50 dark:from-zinc-900 dark:via-zinc-950 dark:to-zinc-900">
+      <div className="pagePadding">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
           <div className="relative">
@@ -268,6 +269,7 @@ const Home: pageWithLayout = () => {
           </div>
         )}
 
+      </div>
       </div>
     </div>
   )

@@ -37,7 +37,6 @@ const Activity: pageWithLayout = () => {
   const [workspace] = useRecoilState(workspacestate);
   const text = useMemo(() => randomText(login.displayname), []);
   const [myData, setMyData] = useState<any>(null);
-  const [myQuotas, setMyQuotas] = useState<any[]>([]);
   const [myAssignments, setMyAssignments] = useState<any[]>([]);
   const [timeline, setTimeline] = useState<any[]>([]);
   const [isSessionModalOpen, setIsSessionModalOpen] = useState(false);
@@ -110,59 +109,6 @@ const Activity: pageWithLayout = () => {
           picture: profileData.avatar,
           username: login.displayname,
         });
-
-        if (profileData.quotas) {
-          const quotasWithProgress = profileData.quotas.map((quota: any) => {
-            let currentValue = 0;
-            let percentage = 0;
-
-            switch (quota.type) {
-              case "mins":
-                currentValue = activeMinutes;
-                percentage = (activeMinutes / quota.value) * 100;
-                break;
-              case "sessions_hosted":
-                const hostedCount =
-                  quota.sessionType && quota.sessionType !== "all"
-                    ? profileData.sessionsLogged?.byType[quota.sessionType] || 0
-                    : sessionsHosted;
-                currentValue = hostedCount;
-                percentage = (hostedCount / quota.value) * 100;
-                break;
-              case "sessions_attended":
-                currentValue = sessionsAttended;
-                percentage = (sessionsAttended / quota.value) * 100;
-                break;
-              case "sessions_logged":
-                let loggedCount = 0;
-                if (quota.sessionRole === "host") {
-                  loggedCount = profileData.sessionsLogged?.byRole.host || 0;
-                } else if (quota.sessionRole === "cohost") {
-                  loggedCount = profileData.sessionsLogged?.byRole.cohost || 0;
-                } else {
-                  loggedCount = profileData.sessionsLogged?.all || 0;
-                }
-                if (quota.sessionType && quota.sessionType !== "all") {
-                  loggedCount =
-                    profileData.sessionsLogged?.byType[quota.sessionType] || 0;
-                }
-                currentValue = loggedCount;
-                percentage = (loggedCount / quota.value) * 100;
-                break;
-              case "alliance_visits":
-                currentValue = profileData.allianceVisitsCount || 0;
-                percentage =
-                  ((profileData.allianceVisitsCount || 0) / quota.value) * 100;
-                break;
-            }
-            return {
-              ...quota,
-              currentValue,
-              percentage: Math.min(percentage, 100),
-            };
-          });
-          setMyQuotas(quotasWithProgress);
-        }
 
         if (profileData.assignments) {
           setMyAssignments(profileData.assignments);
@@ -308,7 +254,8 @@ const Activity: pageWithLayout = () => {
   };
 
   return (
-    <div className="pagePadding">
+    <div className="min-h-screen bg-gradient-to-b from-zinc-50 via-white to-zinc-50 dark:from-zinc-900 dark:via-zinc-950 dark:to-zinc-900">
+      <div className="pagePadding">
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center gap-3 mb-6">
           <div>
@@ -697,117 +644,6 @@ const Activity: pageWithLayout = () => {
                 <div className="text-sm text-emerald-100">
                   Sessions you participated in
                 </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {myQuotas.length > 0 && (
-          <div className="bg-white dark:bg-zinc-800 rounded-xl p-5 shadow-sm mb-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="bg-primary/10 p-2 rounded-lg">
-                <IconTarget className="w-5 h-5 text-primary" />
-              </div>
-              <h3 className="text-base font-medium text-zinc-900 dark:text-white">
-                Quotas
-              </h3>
-            </div>
-            <div className="grid gap-4">
-              {myQuotas.map((quota: any) => (
-                <div
-                  key={quota.id}
-                  className="flex items-center justify-between p-3 bg-zinc-50 dark:bg-zinc-700 rounded-lg"
-                >
-                  <div>
-                    <p className="text-sm font-medium text-zinc-900 dark:text-white">
-                      {quota.name}
-                    </p>
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                      {quota.currentValue} / {quota.value}{" "}
-                      {getQuotaTypeLabel(quota.type)}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="w-24 bg-gray-200 dark:bg-gray-600 rounded-full h-2">
-                      <div
-                        className={`h-2 rounded-full ${
-                          quota.percentage >= 100
-                            ? "bg-green-500"
-                            : quota.percentage >= 70
-                            ? "bg-yellow-500"
-                            : "bg-red-500"
-                        }`}
-                        style={{
-                          width: `${Math.min(quota.percentage, 100)}%`,
-                        }}
-                      ></div>
-                    </div>
-                    <span
-                      className={`text-sm font-medium ${
-                        quota.percentage >= 100
-                          ? "text-green-600 dark:text-green-400"
-                          : quota.percentage >= 70
-                          ? "text-yellow-600 dark:text-yellow-400"
-                          : "text-red-600 dark:text-red-400"
-                      }`}
-                    >
-                      {Math.round(quota.percentage)}%
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-        {myAssignments.length > 0 && (
-          <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-sm overflow-hidden mb-8">
-            <div className="flex items-center gap-3 p-4 border-b dark:border-zinc-600">
-              <div className="bg-primary/10 p-2 rounded-lg">
-                <IconTarget className="w-5 h-5 text-primary" />
-              </div>
-              <h2 className="text-lg font-medium text-zinc-900 dark:text-white">
-                Assignments
-              </h2>
-            </div>
-            <div className="p-4">
-              <div className="grid gap-4">
-                {myAssignments.map((assignment: any) => (
-                  <div
-                    key={assignment.id}
-                    className="bg-zinc-50 dark:bg-zinc-700 rounded-lg p-4"
-                  >
-                    <div className="flex justify-between items-center mb-2">
-                      <h3 className="text-sm font-medium text-zinc-900 dark:text-white">
-                        {assignment.name}
-                      </h3>
-                      <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                        Assigned to your role
-                      </p>
-                    </div>
-                    <p className="text-sm text-zinc-600 dark:text-zinc-300 mb-3">
-                      {assignment.description ||
-                        `${assignment.value} ${getQuotaTypeLabel(
-                          assignment.type
-                        )} required`}
-                    </p>
-                    <div className="flex items-center gap-3">
-                      <div className="flex-1 bg-gray-200 dark:bg-gray-600 rounded-full h-2">
-                        <div
-                          className="h-2 rounded-full bg-primary"
-                          style={{
-                            width: `${Math.min(
-                              assignment.progress || 0,
-                              100
-                            )}%`,
-                          }}
-                        ></div>
-                      </div>
-                      <span className="text-sm font-medium text-zinc-900 dark:text-white min-w-[3rem] text-right">
-                        {Math.round(assignment.progress || 0)}%
-                      </span>
-                    </div>
-                  </div>
-                ))}
               </div>
             </div>
           </div>
@@ -1254,6 +1090,7 @@ const Activity: pageWithLayout = () => {
       </Transition>
 
       <Toaster position="bottom-center" />
+      </div>
     </div>
   );
 };
