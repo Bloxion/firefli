@@ -100,6 +100,7 @@
     <li><code>ROBLOX_CLIENT_SECRET</code> – Your client secret (e.g. RBX-GLEmbz3yrU...)</li>
     <li><code>ROBLOX_REDIRECT_URI</code> – Your Domain Callback URI (e.g. https://domain.domain.com/api/auth/roblox/callback .)</li>
     <li><code>ROBLOX_OAUTH_ONLY</code> – Force oAuth as only login method (e.g. true/false)</li>
+    <li><code>NEXT_MULTI</code> – Having trouble being rate limited syncing your group? Set this to true to increase the ratelimit retries (e.g. true .)</li>
   </ul>
 
   <h2>License</h2>
