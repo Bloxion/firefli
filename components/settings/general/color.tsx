@@ -265,7 +265,7 @@ const Color: FC<props> = ({ triggerToast, isSidebarExpanded }) => {
         <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-4 text-left">
           Choose a color theme for your workspace
         </p>
-        <div className="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-8 gap-3">
+        <div className="grid grid-cols-10 gap-3">
           {isFirefliApp ? (
             <>
               <div className="relative aspect-square rounded-lg overflow-hidden border-2 border-dashed border-zinc-300 dark:border-zinc-600 hover:border-primary dark:hover:border-primary transition-all group">
