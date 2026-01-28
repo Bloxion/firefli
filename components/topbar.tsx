@@ -156,18 +156,18 @@ const Topbar: NextPage = () => {
 
 					<div className="flex items-center space-x-2">
 						<Menu as="div" className="relative">
-						<Menu.Button className="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
-							<div className={`h-8 w-8 rounded-full ${getRandomBg(login?.userId)} flex items-center justify-center overflow-hidden`}>
+						<Menu.Button className="flex items-center space-x-2 px-2 py-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
+							<div className={`h-7 w-7 rounded-full ${getRandomBg(login?.userId)} flex items-center justify-center overflow-hidden`}>
 								<img
 									src={login?.thumbnail}
-									className="h-8 w-8 object-cover rounded-full"
+									className="h-7 w-7 object-cover rounded-full"
 									alt={`${login?.displayname}'s avatar`}
 								/>
 							</div>
 							<span className="text-sm font-medium text-zinc-700 dark:text-zinc-200">
 								{login?.displayname}
 							</span>
-							<IconChevronDown className="h-4 w-4 text-zinc-500 dark:text-zinc-400" />
+							<IconChevronDown className="h-3.5 w-3.5 text-zinc-500 dark:text-zinc-400" />
 						</Menu.Button>
 
 						<Transition
