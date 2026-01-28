@@ -594,7 +594,7 @@ const Home: pageWithLayout<InferGetServerSidePropsType<GetServerSideProps>> = ({
               <div className="px-6 py-5 sm:px-8">
                 <div className="flex items-start gap-4 mb-5 relative">
                   <div className="flex-shrink-0 mt-0.5">
-                    <div className="h-12 w-12 rounded-lg bg-gradient-to-br from-[#ff66b2] to-[#ff0099] flex items-center justify-center text-white shadow-md">
+                    <div className="h-12 w-12 rounded-lg bg-firefli flex items-center justify-center text-white shadow-md">
                       <IconFileText className="w-6 h-6" />
                     </div>
                   </div>
