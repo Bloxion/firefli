@@ -21,7 +21,7 @@
     "@mui/icons-material": "^7.3.7",
     "@mui/material": "^7.3.7",
     "@popperjs/core": "^2.11.8",
-    "@prisma/adapter-pg": "^7.1.0",
+    "@prisma/adapter-pg": "^7.3.0",
     "@radix-ui/react-tooltip": "^1.1.2",
     "@tabler/icons": "^2.47.0",
     "@tabler/icons-react": "^3.34.0",
@@ -118,7 +118,7 @@
   "pnpm": {
     "overrides": {
       "qs": ">=6.14.1",
-      "hono@<4.11.4": ">=4.11.4",
+      "hono@<4.11.7": ">=4.11.7",
       "lodash@>=4.0.0 <=4.17.22": ">=4.17.23",
       "diff@<4.0.4": ">=4.0.4",
       "diff@>=5.0.0 <5.2.2": ">=5.2.2",
