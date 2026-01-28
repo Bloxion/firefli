@@ -648,15 +648,15 @@ const PoliciesPage: pageWithLayout<pageProps> = ({
   const calculatePolicyStats = (doc: any) => {
     const currentVersionAcks = doc.acknowledgments;
     const totalRequired = memberRoleCounts[doc.id] || 0;
-    const acknowledged = currentVersionAcks.length;
+    const acknowledged = Math.min(currentVersionAcks.length, totalRequired);
     const complianceRate =
-      totalRequired > 0 ? (acknowledged / totalRequired) * 100 : 100;
+      totalRequired > 0 ? Math.min((acknowledged / totalRequired) * 100, 100) : 100;
 
     return { acknowledged, totalRequired, complianceRate };
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-zinc-50 via-white to-zinc-50 dark:from-zinc-900 dark:via-zinc-950 dark:to-zinc-900">
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900">
       <Toaster position="bottom-center" />
       <div className="pagePadding">
         <div className="mb-6">
@@ -2879,9 +2879,9 @@ const PoliciesPage: pageWithLayout<pageProps> = ({
               <h2 className="text-lg font-semibold text-zinc-900 dark:text-white mb-4">
                 Confirm Deletion
               </h2>
-              <p className="text-sm text-zinc-600 dark:text-zinc-300 mb-6">
-                Are you sure you want to delete <strong>{policyToDelete.name}</strong>? This action cannot be undone.
-              </p>
+              <p className="text-sm text-zinc-600 dark:text-zinc-300">
+                Are you sure you want to delete <strong>{policyToDelete.name}</strong>?</p> 
+              <p className="text-sm text-zinc-600 dark:text-zinc-300 mb-6">This action cannot be undone.</p>
               <div className="flex justify-center gap-4">
                 <button
                   onClick={() => {
