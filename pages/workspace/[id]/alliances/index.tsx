@@ -246,7 +246,7 @@ const Allies: pageWithLayout<pageProps> = (props) => {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-zinc-800 border-zinc-100 dark:border-zinc-70 rounded-xl shadow-sm overflow-hidden mb-6">
+          <div className="bg-white dark:bg-zinc-800 border border-zinc-100 dark:border-zinc-700 rounded-xl shadow-sm overflow-hidden mb-6">
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
@@ -292,7 +292,7 @@ const Allies: pageWithLayout<pageProps> = (props) => {
                   {allies.map((ally: any) => (
                     <div
                       key={ally.id}
-                      className="bg-zinc-50 dark:bg-zinc-700 rounded-lg p-4"
+                      className="bg-zinc-50 dark:bg-zinc-700 border border-zinc-100 dark:border-zinc-700 rounded-lg p-4"
                     >
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center gap-3">
@@ -393,7 +393,7 @@ const Allies: pageWithLayout<pageProps> = (props) => {
                 leaveFrom="opacity-100 scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-xl bg-white dark:bg-zinc-800 border-zinc-100 dark:border-zinc-700 p-6 text-left align-middle shadow-xl transition-all">
+                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-xl bg-white dark:bg-zinc-800 border border-zinc-100 dark:border-zinc-700 p-6 text-left align-middle shadow-xl transition-all">
                   <Dialog.Title
                     as="h3"
                     className="text-lg font-medium text-zinc-900 dark:text-white mb-4"
@@ -492,7 +492,7 @@ const Allies: pageWithLayout<pageProps> = (props) => {
 
       {showDeleteModal && allyToDelete && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-xl p-6 w-full max-w-sm text-center">
+          <div className="bg-white dark:bg-zinc-800 border border-zinc-100 dark:border-zinc-700 rounded-lg shadow-xl p-6 w-full max-w-sm text-center">
             <h2 className="text-lg font-semibold text-zinc-900 dark:text-white mb-4">
               Confirm Deletion
             </h2>
