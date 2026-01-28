@@ -34,7 +34,7 @@ export const useSessionColors = (workspaceId: number | string | undefined) => {
         setSessionColors(response.data.colors);
       }
     } catch (error) {
-      console.error("Failed to fetch session colors:", error);
+      console.error("Failed to fetch session colours:", error);
     } finally {
       setIsLoading(false);
     }

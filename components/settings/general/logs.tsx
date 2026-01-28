@@ -326,7 +326,7 @@ const renderDetails = (details: any, action?: string) => {
             return (
               <div key={change.key} className="text-sm">
                 <div className="font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-                  Session Colors
+                  Session Colours
                 </div>
                 <div className="space-y-2">
                   {change.colorChanges.map((colorChange: any) => (

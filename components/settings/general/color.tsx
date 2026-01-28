@@ -65,7 +65,7 @@ const Color: FC<props> = ({ triggerToast, isSidebarExpanded }) => {
         setSessionColors(response.data.colors);
       }
     } catch (error) {
-      console.error("Failed to load session colors:", error);
+      console.error("Failed to load session colours:", error);
     } finally {
       setIsLoadingSessionColors(false);
     }
@@ -157,9 +157,9 @@ const Color: FC<props> = ({ triggerToast, isSidebarExpanded }) => {
       );
 
       if (res.status === 200) {
-        triggerToast.success("Session colors updated successfully!");
+        triggerToast.success("Session colours updated successfully!");
       } else {
-        triggerToast.error("Failed to update session colors.");
+        triggerToast.error("Failed to update session colours.");
         setSessionColors(sessionColors);
       }
     } catch (error) {
@@ -327,18 +327,18 @@ const Color: FC<props> = ({ triggerToast, isSidebarExpanded }) => {
         <div className="flex items-center gap-2 mb-2">
           <IconPalette size={20} className="text-primary" />
           <h3 className="text-lg font-semibold text-zinc-900 dark:text-white">
-            Session Colors
+            Session Colours
           </h3>
         </div>
         <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-4 text-left">
-          Customize colors for different session types and tags
+          Customise colours for different session types and tags
         </p>
 
         {isLoadingSessionColors ? (
           <div className="text-center py-4">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
             <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-2">
-              Loading session colors...
+              Loading session colours...
             </p>
           </div>
         ) : (
@@ -449,6 +449,6 @@ function getRGBFromTailwindColor(tw: any): string {
   return colorMap[colorName] || fallback;
 }
 
-Color.title = "Customize";
+Color.title = "Customise";
 
 export default Color;

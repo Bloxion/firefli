@@ -67,7 +67,7 @@ const Color: FC<props> = (props) => {
   return (
     <div>
       <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-4">
-        Customize what appears on your workspace home page. Tiles will only be
+        Customise what appears on your workspace home page. Tiles will only be
         shown to users with the corresponding permissions.
       </p>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">

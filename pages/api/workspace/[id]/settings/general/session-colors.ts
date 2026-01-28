@@ -51,7 +51,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
         colors: sessionColors || defaultColors,
       });
     } catch (error) {
-      console.error("Failed to get session colors:", error);
+      console.error("Failed to get session colours:", error);
       return res.status(500).json({ success: false, error: "Server error" });
     }
   }
@@ -114,7 +114,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
 
       return res.status(200).json({ success: true });
     } catch (error) {
-      console.error("Failed to save session colors:", error);
+      console.error("Failed to save session colours:", error);
       return res.status(500).json({ success: false, error: "Server error" });
     }
   }
