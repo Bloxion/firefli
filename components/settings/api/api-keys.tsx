@@ -397,10 +397,9 @@ export const ApiKeys = ({ triggerToast }: { triggerToast: any }) => {
             <Dialog.Title className="text-lg font-medium text-zinc-900 dark:text-white mb-4">
               Delete API Key
             </Dialog.Title>
-            <p className="text-zinc-500 dark:text-zinc-400 mb-6">
-              Are you sure you want to delete "{selectedKey?.name}"? This action
-              cannot be undone.
-            </p>
+            <p className="text-sm text-zinc-600 dark:text-zinc-300">
+              Are you sure you want to delete "{selectedKey?.name}"?</p>
+            <p className="text-sm text-zinc-600 dark:text-zinc-300 mb-6">This action cannot be undone.</p>
             <div className="flex gap-3">
               <button
                 onClick={() => setIsDeleteModalOpen(false)}

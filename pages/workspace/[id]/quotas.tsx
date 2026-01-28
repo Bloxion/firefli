@@ -647,7 +647,7 @@ const Quotas: pageWithLayout<pageProps> = ({
 
   return (
     <>
-      <div className="min-h-screen bg-gradient-to-b from-zinc-50 via-white to-zinc-50 dark:from-zinc-900 dark:via-zinc-950 dark:to-zinc-900">
+      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900">
         <div className="pagePadding">
         <div>
           <div className="flex items-center justify-between mb-6">
@@ -694,7 +694,7 @@ const Quotas: pageWithLayout<pageProps> = ({
             <div>
               {myQuotas.length === 0 ? (
                 <div className="text-center py-12">
-                  <div className="bg-white dark:bg-zinc-800 rounded-xl p-8 max-w-md mx-auto">
+                  <div className="rounded-xl p-8 max-w-md mx-auto">
                     <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
                       <IconTarget className="w-8 h-8 text-primary" />
                     </div>
@@ -1172,10 +1172,8 @@ const Quotas: pageWithLayout<pageProps> = ({
 
                   <div className="mt-2">
                     <p className="text-sm text-zinc-600 dark:text-zinc-300">
-                      Are you sure you want to delete the quota{" "}
-                      <span className="font-semibold">{quotaToDelete?.name}</span>?
-                      This action cannot be undone.
-                    </p>
+                      Are you sure you want to delete the quota{" "}<span className="font-semibold">{quotaToDelete?.name}</span>?</p>
+                    <p className="text-sm text-zinc-600 dark:text-zinc-300 mb-6">This action cannot be undone.</p>
                   </div>
 
                   <div className="mt-6 flex gap-3">

@@ -986,7 +986,7 @@ const Profile: pageWithLayout<pageProps> = ({
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-zinc-50 via-white to-zinc-50 dark:from-zinc-900 dark:via-zinc-950 dark:to-zinc-900">
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900">
       <div className="pagePadding">
       <Toaster position="bottom-center" />
       <div>
@@ -1144,7 +1144,7 @@ const Profile: pageWithLayout<pageProps> = ({
                   }
                 >
                   <IconCalendar className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                  Time off
+                  Notices
                 </Tab>
               )}
             </Tab.List>

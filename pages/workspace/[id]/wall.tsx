@@ -266,7 +266,7 @@ const Wall: pageWithLayout<pageProps> = (props) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-zinc-50 via-white to-zinc-50 dark:from-zinc-900 dark:via-zinc-950 dark:to-zinc-900">
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900">
       <div className="pagePadding">
       <Toaster position="bottom-center" />
 
@@ -476,10 +476,9 @@ const Wall: pageWithLayout<pageProps> = (props) => {
             <h2 className="text-lg font-semibold text-zinc-900 dark:text-white mb-4">
               Confirm Deletion
             </h2>
-            <p className="text-sm text-zinc-600 dark:text-zinc-300 mb-6">
-              Are you sure you want to delete this post? This action cannot be
-              undone.
-            </p>
+            <p className="text-sm text-zinc-600 dark:text-zinc-300">
+              Are you sure you want to delete this post?</p> 
+            <p className="text-sm text-zinc-600 dark:text-zinc-300 mb-6">This action cannot be undone.</p>
             <div className="flex justify-center gap-4">
               <button
                 onClick={() => setShowDeleteModal(false)}

@@ -473,6 +473,26 @@ const Views: pageWithLayout<pageProps> = ({ isAdmin, hasManageViewsPerm, hasCrea
   useEffect(() => {
     if (router.query.id && hasUseSavedViews()) loadSavedViews();
   }, [router.query.id]);
+
+  useEffect(() => {
+    const viewId = router.query.view as string;
+    if (viewId && savedViews.length > 0) {
+      const view = savedViews.find((v) => v.id === viewId);
+      if (view) {
+        setSelectedViewId(viewId);
+        applySavedView(view);
+      }
+    } else if (!viewId && savedViews.length > 0) {
+      resetToDefault();
+    }
+  }, [router.query.view, savedViews]);
+
+  useEffect(() => {
+    if (router.query.newView === 'true') {
+      openSaveDialog();
+      router.replace(`/workspace/${router.query.id}/views`, undefined, { shallow: true });
+    }
+  }, [router.query.newView]);
   
   // Reset to page 0 when filters change
   useEffect(() => {
@@ -594,6 +614,7 @@ const Views: pageWithLayout<pageProps> = ({ isAdmin, hasManageViewsPerm, hasCrea
       );
       if (res.data && res.data.view) {
         setSavedViews((prev) => [...prev, res.data.view]);
+        window.dispatchEvent(new CustomEvent('savedViewsChanged'));
       }
       setIsSaveOpen(false);
       toast.success("View created!");
@@ -818,7 +839,7 @@ const Views: pageWithLayout<pageProps> = ({ isAdmin, hasManageViewsPerm, hasCrea
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-zinc-50 via-white to-zinc-50 dark:from-zinc-900 dark:via-zinc-950 dark:to-zinc-900">
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900">
       <Toaster position="bottom-center" />
       <div className="pagePadding">
         {/* Header */}
@@ -833,7 +854,7 @@ const Views: pageWithLayout<pageProps> = ({ isAdmin, hasManageViewsPerm, hasCrea
 
         <div className="flex gap-6">
           {hasUseSavedViews() && (
-            <aside className="w-64 hidden md:block">
+            <aside className="w-64 hidden">
               <div className="sticky top-8">
                 <div className="bg-white dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3 space-y-3">
                   <div className="flex items-center justify-between">
@@ -861,7 +882,7 @@ const Views: pageWithLayout<pageProps> = ({ isAdmin, hasManageViewsPerm, hasCrea
                         key={v.id}
                         className={`flex items-center justify-between gap-2 px-3 py-2 rounded-md ${
                           selectedViewId === v.id
-                            ? "bg-zinc-50 dark:bg-zinc-800/40 border-l-4 border-[#ff0099]"
+                            ? "bg-zinc-50 dark:bg-zinc-800/40 border-l-4 border-[color:rgb(var(--group-theme))]"
                             : "hover:bg-zinc-50 dark:hover:bg-zinc-700/40"
                         }`}
                         style={{ minWidth: 0 }}
@@ -957,7 +978,7 @@ const Views: pageWithLayout<pageProps> = ({ isAdmin, hasManageViewsPerm, hasCrea
                     key={v.id}
                     className={`flex items-center justify-between gap-2 px-3 py-2 rounded-md ${
                       selectedViewId === v.id
-                        ? "bg-zinc-50 dark:bg-zinc-800/40 border-l-4 border-[#ff0099]"
+                        ? "bg-zinc-50 dark:bg-zinc-800/40 border-l-4 border-[color:rgb(var(--group-theme))]"
                         : "hover:bg-zinc-50 dark:hover:bg-zinc-700/40"
                     }`}
                     style={{ minWidth: 0 }}
@@ -1028,7 +1049,7 @@ const Views: pageWithLayout<pageProps> = ({ isAdmin, hasManageViewsPerm, hasCrea
                             selectedViewId !== null && !isEditMode
                               ? "bg-zinc-100 dark:bg-zinc-700/50 border-zinc-200 dark:border-zinc-600 text-zinc-400 dark:text-zinc-500 cursor-not-allowed"
                               : open
-                              ? "bg-zinc-100 dark:bg-zinc-700 border-zinc-300 dark:border-zinc-600 text-zinc-900 dark:text-white ring-2 ring-[#ff0099]/50"
+                              ? "bg-zinc-100 dark:bg-zinc-700 border-zinc-300 dark:border-zinc-600 text-zinc-900 dark:text-white ring-2 ring-[color:rgb(var(--group-theme)/0.5)]"
                               : "bg-zinc-50 dark:bg-zinc-700/50 border-zinc-200 dark:border-zinc-600 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 hover:text-zinc-900 dark:hover:text-white"
                           }`}
                         >
@@ -1049,7 +1070,7 @@ const Views: pageWithLayout<pageProps> = ({ isAdmin, hasManageViewsPerm, hasCrea
                             <div className="space-y-3">
                               <button
                                 onClick={newfilter}
-                                className="w-full inline-flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-lg text-white bg-[#ff0099] hover:bg-[#ff0099]/90 transition-all"
+                                className="w-full inline-flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-lg text-white bg-[color:rgb(var(--group-theme))] hover:bg-[color:rgb(var(--group-theme)/0.9)] transition-all"
                               >
                                 <IconPlus className="w-4 h-4" />
                                 Add Filter
@@ -1092,7 +1113,7 @@ const Views: pageWithLayout<pageProps> = ({ isAdmin, hasManageViewsPerm, hasCrea
                             selectedViewId !== null && !isEditMode
                               ? "bg-zinc-100 dark:bg-zinc-700/50 border-zinc-200 dark:border-zinc-600 text-zinc-400 dark:text-zinc-500 cursor-not-allowed"
                               : open
-                              ? "bg-zinc-100 dark:bg-zinc-700 border-zinc-300 dark:border-zinc-600 text-zinc-900 dark:text-white ring-2 ring-[#ff0099]/50"
+                              ? "bg-zinc-100 dark:bg-zinc-700 border-zinc-300 dark:border-zinc-600 text-zinc-900 dark:text-white ring-2 ring-[color:rgb(var(--group-theme)/0.5)]"
                               : "bg-zinc-50 dark:bg-zinc-700/50 border-zinc-200 dark:border-zinc-600 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 hover:text-zinc-900 dark:hover:text-white"
                           }`}
                         >
@@ -1149,7 +1170,7 @@ const Views: pageWithLayout<pageProps> = ({ isAdmin, hasManageViewsPerm, hasCrea
                       type="text"
                       value={searchQuery}
                       onChange={(e) => updateSearchQuery(e.target.value)}
-                      className="block w-full pl-10 pr-3 py-[6px] border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-900/50 text-zinc-900 dark:text-zinc-200 placeholder-zinc-500 dark:placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-[#ff0099]/50 focus:border-transparent transition-all"
+                      className="block w-full pl-10 pr-3 py-[6px] border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-900/50 text-zinc-900 dark:text-zinc-200 placeholder-zinc-500 dark:placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-[color:rgb(var(--group-theme)/0.5)] focus:border-transparent transition-all"
                       placeholder="Search staff..."
                     />
                   </div>
@@ -1171,7 +1192,7 @@ const Views: pageWithLayout<pageProps> = ({ isAdmin, hasManageViewsPerm, hasCrea
                             <img
                               src={u.thumbnail}
                               alt={u.username}
-                              className="w-6 h-6 rounded-full bg-[#ff0099]"
+                              className="w-6 h-6 rounded-full bg-[color:rgb(var(--group-theme))]"
                             />
                             <span className="text-sm font-medium text-zinc-900 dark:text-zinc-200 group-hover:text-zinc-950 dark:group-hover:text-white transition-colors">
                               {u.username}
@@ -1506,20 +1527,24 @@ const Views: pageWithLayout<pageProps> = ({ isAdmin, hasManageViewsPerm, hasCrea
                       </button>
                     </Dialog.Title>
                     <div className="mt-3 space-y-3">
-                      <Input
-                        name="save-name"
-                        label="Name"
-                        value={saveName}
-                        onChange={(e) => {
-                          setSaveName(e.target.value);
-                          return Promise.resolve();
-                        }}
-                        onBlur={() => Promise.resolve()}
-                      />
+                      <div>
+                        <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-2">
+                          Name <span className="text-red-500">*</span>
+                        </label>
+                        <Input
+                          name="save-name"
+                          value={saveName}
+                          onChange={(e) => {
+                            setSaveName(e.target.value);
+                            return Promise.resolve();
+                          }}
+                          onBlur={() => Promise.resolve()}
+                        />
+                      </div>
 
                       <div>
                         <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-2">
-                          Color
+                          Color <span className="text-red-500">*</span>
                         </label>
                         <div className="flex flex-wrap gap-2">
                           {[
@@ -1551,7 +1576,7 @@ const Views: pageWithLayout<pageProps> = ({ isAdmin, hasManageViewsPerm, hasCrea
                               title={c}
                               className={`w-8 h-8 rounded-md border dark:border-zinc-600 ${
                                 saveColor === c
-                                  ? "ring-2 ring-offset-1 ring-[#ff0099] dark:ring-white/30"
+                                  ? "ring-2 ring-offset-1 ring-[color:rgb(var(--group-theme))] dark:ring-white/30"
                                   : ""
                               }`}
                               style={{ background: c }}
@@ -1561,7 +1586,7 @@ const Views: pageWithLayout<pageProps> = ({ isAdmin, hasManageViewsPerm, hasCrea
 
                         <div className="mt-3">
                           <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-2">
-                            Icon
+                            Icon <span className="text-red-500">*</span>
                           </label>
                           <div className="flex flex-wrap gap-2">
                             {ICON_OPTIONS.map((opt) => {
@@ -1574,7 +1599,7 @@ const Views: pageWithLayout<pageProps> = ({ isAdmin, hasManageViewsPerm, hasCrea
                                   title={opt.title || opt.key}
                                   className={`w-9 h-9 rounded-md flex items-center justify-center text-lg border dark:border-zinc-600 ${
                                     saveIcon === opt.key
-                                      ? "ring-2 ring-offset-1 ring-[#ff0099] dark:ring-white/30"
+                                      ? "ring-2 ring-offset-1 ring-[color:rgb(var(--group-theme))] dark:ring-white/30"
                                       : ""
                                   }`}
                                 >
@@ -1596,8 +1621,9 @@ const Views: pageWithLayout<pageProps> = ({ isAdmin, hasManageViewsPerm, hasCrea
                       </button>
                       <button
                         type="button"
-                        className="inline-flex justify-center px-3 py-1.5 text-sm font-medium text-white bg-primary border border-transparent rounded-md hover:bg-primary/90"
+                        className="inline-flex justify-center px-3 py-1.5 text-sm font-medium text-white bg-primary border border-transparent rounded-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
                         onClick={saveCurrentView}
+                        disabled={!saveName.trim() || !saveColor || !saveIcon}
                       >
                         Save
                       </button>
@@ -1614,10 +1640,9 @@ const Views: pageWithLayout<pageProps> = ({ isAdmin, hasManageViewsPerm, hasCrea
               <h2 className="text-lg font-semibold text-zinc-900 dark:text-white mb-4">
                 Confirm Deletion
               </h2>
-              <p className="text-sm text-zinc-600 dark:text-zinc-300 mb-6">
-                Are you sure you want to delete this saved view? This action
-                cannot be undone.
-              </p>
+              <p className="text-sm text-zinc-600 dark:text-zinc-300">
+                Are you sure you want to delete this saved view?</p>
+              <p className="text-sm text-zinc-600 dark:text-zinc-300 mb-6">This action cannot be undone.</p>
               <div className="flex justify-center gap-4">
                 <button
                   onClick={() => {

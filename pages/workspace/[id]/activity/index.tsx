@@ -23,11 +23,14 @@ import {
   IconMedal,
   IconCrown,
   IconAward,
+  IconActivity,
+  IconCalendarStats,
 } from "@tabler/icons-react";
 import Tooltip from "@/components/tooltip";
 import randomText from "@/utils/randomText";
 import toast, { Toaster } from "react-hot-toast";
 import { Dialog, Transition } from "@headlessui/react";
+
 
 const Activity: pageWithLayout = () => {
   const router = useRouter();
@@ -48,6 +51,7 @@ const Activity: pageWithLayout = () => {
   const [inactiveUsers, setInactiveUsers] = useState([]);
   const [leaderboardEnabled, setLeaderboardEnabled] = useState(false);
   const [leaderboardStyle, setLeaderboardStyle] = useState<"list" | "podium">("list");
+  const [sessionsEnabled, setSessionsEnabled] = useState(false);
 
   useEffect(() => {
     async function fetchUserData() {
@@ -205,9 +209,25 @@ const Activity: pageWithLayout = () => {
       }
     }
 
+    async function fetchSessionsConfig() {
+      try {
+        const res = await axios.get(
+          `/api/workspace/${id}/settings/general/sessions`
+        );
+        const val = res.data.value ?? res.data;
+        const enabled = typeof val === "object" && val !== null && "enabled" in val
+          ? (val as { enabled?: boolean }).enabled ?? false
+          : !!val;
+        setSessionsEnabled(enabled);
+      } catch (error) {
+        setSessionsEnabled(false);
+      }
+    }
+
     if (id) {
       fetchLeaderboardData();
       fetchLeaderboardConfig();
+      fetchSessionsConfig();
     }
   }, [id]);
 
@@ -267,7 +287,7 @@ const Activity: pageWithLayout = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-zinc-50 via-white to-zinc-50 dark:from-zinc-900 dark:via-zinc-950 dark:to-zinc-900">
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900">
       <div className="pagePadding">
       <div>
         <div className="flex items-center gap-3 mb-6">

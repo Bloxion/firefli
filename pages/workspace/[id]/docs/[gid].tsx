@@ -305,10 +305,9 @@ const Settings: pageWithLayout<Props> = ({ document, canEdit, canDelete }) => {
             <h2 className="text-lg font-semibold text-zinc-900 dark:text-white mb-4">
               Confirm Deletion
             </h2>
-            <p className="text-sm text-zinc-600 dark:text-zinc-300 mb-6">
-              Are you sure you want to delete this Document? This action cannot
-              be undone.
-            </p>
+            <p className="text-sm text-zinc-600 dark:text-zinc-300">
+              Are you sure you want to delete this Document?</p> 
+            <p className="text-sm text-zinc-600 dark:text-zinc-300 mb-6">This action cannot be undone.</p>
             <div className="flex justify-center gap-4">
               <button
                 onClick={() => setShowDeleteModal(false)}

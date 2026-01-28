@@ -429,9 +429,8 @@ const Button: FC<Props> = (props) => {
                     </Dialog.Title>
                     <div className="mt-2">
                       <p className="text-sm text-zinc-600 dark:text-zinc-300">
-                        Are you sure you want to remove this user from the
-                        workspace? This action cannot be undone.
-                      </p>
+                        Are you sure you want to remove this user?</p> 
+                      <p className="text-sm text-zinc-600 dark:text-zinc-300 mb-6">This action cannot be undone.</p>
                     </div>
                   </div>
                 </div>

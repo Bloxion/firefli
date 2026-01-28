@@ -731,10 +731,10 @@ const EditSession: pageWithLayout<
               </div>
             ) : (
               <div>
-                <p className="text-sm text-zinc-600 dark:text-zinc-300 mb-6 text-center">
-                  Are you sure you want to delete this session? This action
-                  cannot be undone.
+                <p className="text-sm text-zinc-600 dark:text-zinc-300">
+                  Are you sure you want to delete this session?
                 </p>
+                <p className="text-sm text-zinc-600 dark:text-zinc-300 mb-6">This action cannot be undone.</p>
                 <div className="flex justify-center gap-4">
                   <button
                     onClick={() => setShowDeleteModal(false)}

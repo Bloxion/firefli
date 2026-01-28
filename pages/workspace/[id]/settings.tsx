@@ -17,6 +17,7 @@ import prisma from "@/utils/database"
 import { getUsername, getDisplayName } from "@/utils/userinfoEngine"
 import { useState, useEffect } from "react"
 import clsx from "clsx"
+import { useRouter } from "next/router"
 
 export const getServerSideProps: GetServerSideProps = withPermissionCheckSsr(async ({ params, res, req }) => {
   if (!params?.id) {
@@ -198,8 +199,9 @@ const SECTIONS = {
 }
 
 const Settings: pageWithLayout<Props> = ({ users, roles, departments, grouproles, isAdmin, userPermissions }) => {
-  const [activeSection, setActiveSection] = useState("general")
+  const router = useRouter()
   const [isSidebarExpanded] = useState(true)
+  const activeSection = (router.query.section as string) || "general"
 
   const hasPermission = (permission: string) => {
     return isAdmin || userPermissions.includes(permission);
@@ -226,9 +228,9 @@ const Settings: pageWithLayout<Props> = ({ users, roles, departments, grouproles
 
   useEffect(() => {
     if (availableSections.length > 0 && !availableSections.find(([key]) => key === activeSection)) {
-      setActiveSection(availableSections[0][0]);
+      router.replace(`/workspace/${router.query.id}/settings?section=${availableSections[0][0]}`, undefined, { shallow: true });
     }
-  }, []);
+  }, [activeSection, availableSections, router]);
 
   const renderContent = () => {
     if (activeSection === "permissions") {
@@ -285,7 +287,7 @@ const Settings: pageWithLayout<Props> = ({ users, roles, departments, grouproles
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-zinc-50 via-white to-zinc-50 dark:from-zinc-900 dark:via-zinc-950 dark:to-zinc-900">
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900">
       <div className="pagePadding">
         {/* Header */}
         <div className="mb-6">
@@ -296,8 +298,7 @@ const Settings: pageWithLayout<Props> = ({ users, roles, departments, grouproles
         </div>
 
         <div className="flex flex-col lg:flex-row gap-4">
-          {/* Navigation Sidebar */}
-          <div className="w-full lg:w-64 flex-shrink-0">
+          <div className="w-full md:hidden flex-shrink-0">
             <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-sm p-3">
               <nav className="space-y-1">
                 {availableSections.map(([key, section]) => {
@@ -305,11 +306,11 @@ const Settings: pageWithLayout<Props> = ({ users, roles, departments, grouproles
                   return (
                     <button
                       key={key}
-                      onClick={() => setActiveSection(key)}
+                      onClick={() => router.push(`/workspace/${router.query.id}/settings?section=${key}`)}
                       className={clsx(
                         "w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors",
                         activeSection === key
-                          ? "text-primary bg-primary/10 dark:bg-primary/20"
+                          ? "text-[color:rgb(var(--group-theme))] bg-[color:rgb(var(--group-theme)/0.1)]"
                           : "text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700",
                       )}
                     >

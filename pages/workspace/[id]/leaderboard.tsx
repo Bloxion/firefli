@@ -214,7 +214,8 @@ const Leaderboard: pageWithLayout = () => {
   }
 
   return (
-    <div className="pagePadding">
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900">
+      <div className="pagePadding">
       <div>
         <div className="flex items-center gap-3 mb-8">
           <div>
@@ -568,6 +569,7 @@ const Leaderboard: pageWithLayout = () => {
             </div>
           ))}
         </div>
+      </div>
       </div>
     </div>
   );

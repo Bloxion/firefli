@@ -134,7 +134,7 @@ const Home: pageWithLayout = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-zinc-50 via-white to-zinc-50 dark:from-zinc-900 dark:via-zinc-950 dark:to-zinc-900">
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900">
       <div className="pagePadding">
       <div>
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
@@ -147,10 +147,10 @@ const Home: pageWithLayout = () => {
                   titleVisible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0",
                 )}
               >
-                <span className="text-xs font-normal text-primary tracking-wider mb-1 block">
+                <span className="text-sm font-medium text-primary/80 mb-1 block">
                   Welcome back
                 </span>
-                <h1 className="text-4xl font-semibold text-zinc-900 dark:text-white mb-2 bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70">
+                <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-semibold text-zinc-900 dark:text-white mb-2 bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70 truncate">
                   {text}
                 </h1>
                 <div

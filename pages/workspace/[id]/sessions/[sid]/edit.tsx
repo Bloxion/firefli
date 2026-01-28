@@ -756,11 +756,12 @@ const Home: pageWithLayout<InferGetServerSidePropsType<GetServerSideProps>> = ({
             <h2 className="text-lg font-semibold text-zinc-900 dark:text-white mb-4">
               Confirm Deletion
             </h2>
-            <p className="text-sm text-zinc-600 dark:text-zinc-300 mb-6">
+            <p className="text-sm text-zinc-600 dark:text-zinc-300">
               {session.schedule?.enabled && session.schedule?.days?.length > 0
-                ? "Are you sure you want to delete all sessions in this recurring series? This action cannot be undone."
-                : "Are you sure you want to delete this session? This action cannot be undone."}
+                ? "Are you sure you want to delete all sessions in this recurring series?"
+                : "Are you sure you want to delete this session?"}
             </p>
+            <p className="text-sm text-zinc-600 dark:text-zinc-300 mb-6">This action cannot be undone.</p>
             <div className="flex justify-center gap-4">
               <button
                 onClick={() => setShowDeleteModal(false)}

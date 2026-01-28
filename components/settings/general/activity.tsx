@@ -952,9 +952,8 @@ const Activity: FC<props> = (props) => {
                   </div>
 
                   <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-6">
-                    Are you sure you want to reset the activity period? This
-                    will:
-                  </p>
+                    Are you sure you want to reset the activity period?</p>
+                  <p className="text-sm text-zinc-600 dark:text-zinc-300 mb-6">This will: </p>
 
                   <ul className="text-sm text-zinc-600 dark:text-zinc-400 mb-6 space-y-1 ml-4">
                     <li>• Save all current activity data to history</li>
