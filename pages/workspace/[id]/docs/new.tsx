@@ -763,7 +763,7 @@ const Home: pageWithLayout<InferGetServerSidePropsType<GetServerSideProps>> = ({
                   <button
                     type="button"
                     onClick={proceedWithLink}
-                    className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-[#ff0099] hover:bg-[#ff0099]/95 text-white font-medium shadow-md"
+                    className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-[#ff0099] hover:bg-[#ff0099]/95 active:bg-[#ff0099]/90 text-white font-medium shadow-md transition-all focus:outline-none focus:ring-2 focus:ring-[#ff0099]/40"
                   >
                     <IconExternalLink size={18} />
                     Continue

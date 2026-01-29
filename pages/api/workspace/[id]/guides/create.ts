@@ -24,7 +24,10 @@ export async function handler(
 ) {
 	if (req.method !== 'POST') return res.status(405).json({ success: false, error: 'Method not allowed' });
 	const { name, content, roles, departments } = req.body;
-	if (!name || (!roles && !departments)) return res.status(400).json({ success: false, error: 'Missing required fields' });
+	if (!name) return res.status(400).json({ success: false, error: 'Document name is required' });
+	const hasRoles = Array.isArray(roles) && roles.length > 0;
+	const hasDepartments = Array.isArray(departments) && departments.length > 0;
+	if (!hasRoles && !hasDepartments) return res.status(400).json({ success: false, error: 'At least one role or department must be selected' });
 	if (content && typeof content === 'object' && (content as any).external) {
 		const url = (content as any).url;
 		if (!url || typeof url !== 'string') return res.status(400).json({ success: false, error: 'External URL required' });

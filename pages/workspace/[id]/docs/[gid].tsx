@@ -75,6 +75,18 @@ export const getServerSideProps: GetServerSideProps = withPermissionCheckSsr(
             workspaceGroupId: parseInt(context.query.id as string),
           },
         },
+        workspaceMemberships: {
+          where: {
+            workspaceGroupId: parseInt(context.query.id as string),
+          },
+          include: {
+            departmentMembers: {
+              include: {
+                department: true,
+              },
+            },
+          },
+        },
       },
     });
     const guide = await prisma.document
@@ -90,18 +102,15 @@ export const getServerSideProps: GetServerSideProps = withPermissionCheckSsr(
             },
           },
           roles: true,
+          departments: true,
         },
       })
       .catch(() => null);
     if (!guide) return { notFound: true };
     const userRoles = user?.roles || [];
-    const membership = await prisma.workspaceMember.findFirst({
-      where: {
-        workspaceGroupId: parseInt(context.query.id as string),
-        userId: BigInt(context.req.session.userid),
-      },
-    });
+    const membership = user?.workspaceMemberships?.[0];
     const isAdmin = membership?.isAdmin || false;
+    const userDepartmentIds = (membership?.departmentMembers || []).map((dm: any) => dm.department.id);
     const isOwner = userRoles.some((r: any) => r.isOwnerRole);
     const canEdit = isAdmin || userRoles.some((r: any) => r.permissions?.includes("edit_docs"));
     const canDelete = isAdmin || userRoles.some((r: any) => r.permissions?.includes("delete_docs"));
@@ -109,8 +118,11 @@ export const getServerSideProps: GetServerSideProps = withPermissionCheckSsr(
     const hasRoleAccess = guide.roles.some((gr: any) =>
       userRoles.some((ur: any) => ur.id === gr.id)
     );
+    const hasDepartmentAccess = userDepartmentIds.length > 0 && guide.departments.some((gd: any) =>
+      userDepartmentIds.includes(gd.id)
+    );
 
-    if (!isOwner && !canManageDocs && !hasRoleAccess) return { notFound: true };
+    if (!isOwner && !canManageDocs && !hasRoleAccess && !hasDepartmentAccess) return { notFound: true };
 
     return {
       props: {
@@ -364,7 +376,7 @@ const Settings: pageWithLayout<Props> = ({ document, canEdit, canDelete }) => {
                 <button
                   type="button"
                   onClick={proceedWithLink}
-                  className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-[#ff0099] hover:bg-[#ff0099]/95 text-white font-medium shadow-md"
+                  className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-[#ff0099] hover:bg-[#ff0099]/95 active:bg-[#ff0099]/90 text-white font-medium shadow-md transition-all focus:outline-none focus:ring-2 focus:ring-[#ff0099]/40"
                 >
                   <IconExternalLink size={18} />
                   Continue
