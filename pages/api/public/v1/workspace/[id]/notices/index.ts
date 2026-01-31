@@ -58,7 +58,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               select: {
                 userid: true,
                 username: true,
-                displayname: true,
                 picture: true,
               },
             },
@@ -78,7 +77,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         user: {
           userId: Number(notice.user.userid),
           username: notice.user.username,
-          displayname: notice.user.displayname,
+          
           thumbnail: notice.user.picture,
         },
         startTime: notice.startTime,
@@ -126,7 +125,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             select: {
               userid: true,
               username: true,
-              displayname: true,
               picture: true,
             },
           },
@@ -141,7 +139,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           user: {
             userId: Number(notice.user.userid),
             username: notice.user.username,
-            displayname: notice.user.displayname,
+            
             thumbnail: notice.user.picture,
           },
           startTime: notice.startTime,
