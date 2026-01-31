@@ -408,8 +408,8 @@ const Sidebar: NextPage = () => {
           "w-16 min-w-[4rem]",
         )}
       >
-        <div className="h-full flex flex-col p-2 pb-2 gap-1 overflow-hidden">
-          <nav className="flex-1 space-y-1 flex flex-col items-center overflow-y-auto overflow-x-hidden min-h-0 scrollbar-thin">
+        <div className="h-full flex flex-col p-2 pb-2 gap-1 overflow-visible">
+          <nav className="flex-1 space-y-1 flex flex-col items-center overflow-y-auto overflow-x-visible min-h-0 scrollbar-thin px-1">
             {sections.map((section) => {
               if (section.accessible === undefined || section.accessible) {
                 const isActive = section.matchPaths
@@ -438,12 +438,12 @@ const Sidebar: NextPage = () => {
                         (() => { const IconComponent = section.icon as React.ElementType; return <IconComponent className="w-5 h-5" />; })()
                       )}
                       {section.name === "Docs" && pendingPolicyCount > 0 && (
-                        <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                        <span className="absolute -top-1 right-0 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
                           {pendingPolicyCount > 9 ? '9+' : pendingPolicyCount}
                         </span>
                       )}
                       {section.name === "Staff" && pendingNoticesCount > 0 && (
-                        <span className="absolute -top-1 -right-1 w-4 h-4 bg-amber-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                        <span className="absolute -top-1 right-0 min-w-[18px] h-[18px] px-1 bg-amber-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
                           {pendingNoticesCount > 9 ? '9+' : pendingNoticesCount}
                         </span>
                       )}

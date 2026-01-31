@@ -29,6 +29,19 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
   try {
     if (req.method === "GET") {
+      if (!req.session?.userid) return res.status(401).json({ success: false, error: "Unauthorized" });
+      const user = await prisma.user.findFirst({
+        where: { userid: BigInt(req.session.userid) },
+        include: {
+          roles: { where: { workspaceGroupId: workspaceId } },
+          workspaceMemberships: { where: { workspaceGroupId: workspaceId } },
+        },
+      });
+      if (!user || !user.roles.length) return res.status(401).json({ success: false, error: "Unauthorized" });
+      const membership = user.workspaceMemberships[0];
+      const isAdmin = membership?.isAdmin || false;
+      const hasUseViewsPermission = isAdmin || user.roles[0].permissions.includes("use_views");
+      if (!hasUseViewsPermission) return res.status(403).json({ success: false, error: "Insufficient permissions" });
       const views = await prisma.savedView.findMany({ where: { workspaceGroupId: workspaceId }, orderBy: { createdAt: 'asc' } });
       return res.status(200).json({ success: true, views });
     }

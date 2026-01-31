@@ -156,6 +156,11 @@ const workspace: LayoutProps = ({ children }) => {
 
 	const loadSavedViews = useCallback(async () => {
 		if (!router.query.id) return;
+		const hasUseSavedViewsPermission = workspace.isAdmin || workspace.yourPermission?.includes("use_views");
+		if (!hasUseSavedViewsPermission) {
+			setSavedViewsLoaded(true);
+			return;
+		}
 		try {
 			const res = await axios.get(`/api/workspace/${router.query.id}/views`);
 			if (res.data && res.data.views) {
@@ -165,7 +170,7 @@ const workspace: LayoutProps = ({ children }) => {
 			console.error("Failed to load saved views", e);
 		}
 		setSavedViewsLoaded(true);
-	}, [router.query.id]);
+	}, [router.query.id, workspace.isAdmin, workspace.yourPermission]);
 
 	const deleteSavedView = useCallback(async (viewId: string) => {
 		try {
@@ -309,6 +314,8 @@ const workspace: LayoutProps = ({ children }) => {
 				workspace.yourPermission?.includes("create_notices") ||
 				workspace.yourPermission?.includes("approve_notices") ||
 				workspace.yourPermission?.includes("manage_notices");
+			const hasUseSavedViewsPermission = workspace.isAdmin || workspace.yourPermission?.includes("use_views");
+			const hasCreateViewsPermission = workspace.isAdmin || workspace.yourPermission?.includes("create_views");
 
 			const staffItems: SecondarySidebarItem[] = [];
 			
@@ -335,15 +342,17 @@ const workspace: LayoutProps = ({ children }) => {
 					title: "Staff",
 					items: staffItems,
 				},
-				{
-					title: "Saved Views",
-					canAdd: true,
-					onAdd: () => {
-						router.push(`/workspace/${id}/views?newView=true`);
-					},
-					items: savedViewItems,
-				},
 			];
+			if (hasUseSavedViewsPermission) {
+				sections.push({
+					title: "Saved Views",
+					canAdd: hasCreateViewsPermission,
+					onAdd: hasCreateViewsPermission ? () => {
+						router.push(`/workspace/${id}/views?newView=true`);
+					} : undefined,
+					items: savedViewItems,
+				});
+			}
 			return { title: "Staff", sections, hideHeader: true };
 		}
 
