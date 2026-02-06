@@ -27,10 +27,7 @@ const Home: NextPage = () => {
   const methods = useForm();
   const router = useRouter();
   const [isOpen, setIsOpen] = useRecoilState(createWorkspaceModalState);
-  const [isOwner, setIsOwner] = useState(false);
-  const canCreateWorkspace =
-    process.env.NEXT_PUBLIC_FIREFLI_LIMIT === "true" ||
-    (!process.env.NEXT_PUBLIC_FIREFLI_LIMIT && isOwner);
+  const canCreateWorkspace = login.canMakeWorkspace;
 
   const gotoWorkspace = (id: number) => {
     localStorage.setItem("lastWorkspace", id.toString());
@@ -120,21 +117,7 @@ const Home: NextPage = () => {
       }
     };
 
-    const checkOwnerStatus = async () => {
-      try {
-        const response = await axios.get("/api/auth/checkOwner");
-        if (response.data.success) {
-          setIsOwner(response.data.isOwner);
-        }
-      } catch (error: any) {
-        if (error.response?.status !== 401) {
-          console.error("Failed to check owner status:", error);
-        }
-      }
-    };
-
     checkLogin();
-    checkOwnerStatus();
   }, []);
 
   const checkRoles = async () => {

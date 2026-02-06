@@ -14,6 +14,7 @@ type User = {
 	registered: boolean
 	birthdayDay?: number | null
 	birthdayMonth?: number | null
+	isOwner: boolean
 }
 
 type Data = {
@@ -66,13 +67,15 @@ export async function handler(
 		getUsername(userId),
 		getDisplayName(userId)
 	]);
-	let canMakeWorkspace = dbuser?.isOwner || false;
+	let canMakeWorkspace = false;
 	if (process.env.NEXT_PUBLIC_FIREFLI_LIMIT === 'true') {
 		const existingWorkspace = await prisma.workspace.findFirst({
 			where: { ownerId: BigInt(userId) },
 			select: { groupId: true }
 		});
 		canMakeWorkspace = !existingWorkspace;
+	} else {
+		canMakeWorkspace = dbuser?.isOwner || false;
 	}
 
 	const user: User = {
@@ -84,6 +87,7 @@ export async function handler(
 		registered: dbuser?.registered || false,
 		birthdayDay: dbuser?.birthdayDay ?? null,
 		birthdayMonth: dbuser?.birthdayMonth ?? null,
+		isOwner: dbuser?.isOwner || false,
 	}
 	
 	let roles: any[] = [];

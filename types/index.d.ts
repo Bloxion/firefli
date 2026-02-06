@@ -15,6 +15,7 @@ export type User = {
 	username: string
 	displayname: string
 	thumbnail: string
+	isOwner?: boolean
 }
 
 declare global {
