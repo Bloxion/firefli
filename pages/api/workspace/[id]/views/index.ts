@@ -44,12 +44,12 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       const hasUseViewsPermission = isAdmin || user.roles[0].permissions.includes("use_views");
       const localViews = await prisma.savedView.findMany({
         where: { workspaceGroupId: workspaceId, isLocal: true, createdBy: userId },
-        orderBy: { createdAt: 'asc' },
+        orderBy: { order: 'asc' },
       });
       const teamViews = hasUseViewsPermission
         ? await prisma.savedView.findMany({
             where: { workspaceGroupId: workspaceId, isLocal: false },
-            orderBy: { createdAt: 'asc' },
+            orderBy: { order: 'asc' },
           })
         : [];
 

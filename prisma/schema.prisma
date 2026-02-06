@@ -551,11 +551,13 @@ model SavedView {
   isLocal          Boolean   @default(false)
   createdBy        BigInt?
   createdAt        DateTime  @default(now())
+  order            Int       @default(0)
   workspace        workspace @relation(fields: [workspaceGroupId], references: [groupId])
   creator          user?     @relation("UserLocalViews", fields: [createdBy], references: [userid])
 
   @@index([workspaceGroupId])
   @@index([createdBy])
+  @@index([workspaceGroupId, isLocal, order])
 }
 
 model PolicyAcknowledgment {

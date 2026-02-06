@@ -16,7 +16,6 @@ import WorkspaceBirthdayPrompt from '@/components/bdayprompt';
 import { useEffect, useState, useMemo, useCallback } from "react";
 import clsx from 'clsx';
 import SecondarySidebar, { SecondarySidebarSection, SecondarySidebarItem } from "@/components/tabs";
-import { motion, AnimatePresence } from 'framer-motion';
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
 import {
   Home07Icon,
@@ -324,6 +323,35 @@ const workspace: LayoutProps = ({ children }) => {
 				workspace.yourPermission?.includes("manage_notices");
 			const hasUseSavedViewsPermission = workspace.isAdmin || workspace.yourPermission?.includes("use_views");
 			const hasCreateViewsPermission = workspace.isAdmin || workspace.yourPermission?.includes("create_views");
+			const hasEditViewsPermission = workspace.isAdmin || workspace.yourPermission?.includes("edit_views");
+			const handleReorderTeamViews = async (reorderedItems: any[]) => {
+				const reorderedViews = reorderedItems
+					.map(item => savedViews.find(v => v.id === item.id))
+					.filter((v): v is typeof savedViews[0] => v !== undefined);
+				const viewIds = reorderedViews.map(v => v.id);
+				setSavedViews(reorderedViews);
+				try {
+					await axios.post(`/api/workspace/${id}/views/reorder`, { viewIds });
+				} catch (error) {
+					console.error("Failed to reorder views:", error);
+					loadSavedViews();
+				}
+			};
+
+			const handleReorderLocalViews = async (reorderedItems: any[]) => {
+				const reorderedViews = reorderedItems
+					.map(item => localViews.find(v => v.id === item.id))
+					.filter((v): v is typeof localViews[0] => v !== undefined);
+				
+				const viewIds = reorderedViews.map(v => v.id);
+				setLocalViews(reorderedViews);
+				try {
+					await axios.post(`/api/workspace/${id}/views/reorder`, { viewIds });
+				} catch (error) {
+					console.error("Failed to reorder views:", error);
+					loadSavedViews();
+				}
+			};
 
 			const staffItems: SecondarySidebarItem[] = [];
 			
@@ -360,6 +388,8 @@ const workspace: LayoutProps = ({ children }) => {
 						router.push(`/workspace/${id}/views?newView=true`);
 					} : undefined,
 					items: teamViewItems,
+					draggable: hasEditViewsPermission,
+					onReorder: hasEditViewsPermission ? handleReorderTeamViews : undefined,
 				});
 			}
 			sections.push({
@@ -370,6 +400,8 @@ const workspace: LayoutProps = ({ children }) => {
 					router.push(`/workspace/${id}/views?newView=true`);
 				},
 				items: localViewItems,
+				draggable: true,
+				onReorder: handleReorderLocalViews,
 			});
 			return { title: "Staff", sections, hideHeader: true };
 		}
@@ -489,7 +521,7 @@ const workspace: LayoutProps = ({ children }) => {
 		}
 
 		return null;
-	}, [router.asPath, router.query.id, router.query.section, savedViews, router, workspace.isAdmin, workspace.yourPermission, workspace.settings?.guidesEnabled, workspace.settings?.policiesEnabled, workspace.settings?.leaderboardEnabled, workspace.settings?.sessionsEnabled, deleteSavedView]);
+	}, [router.asPath, router.query.id, router.query.section, savedViews, localViews, router, workspace.isAdmin, workspace.yourPermission, workspace.settings?.guidesEnabled, workspace.settings?.policiesEnabled, workspace.settings?.leaderboardEnabled, workspace.settings?.sessionsEnabled, deleteSavedView]);
 
 	const showSecondarySidebar = !!getSecondarySidebar;
 	const workspaceBg = workspace && workspace.groupTheme ? "" : "bg-firefli";
@@ -520,18 +552,7 @@ const workspace: LayoutProps = ({ children }) => {
 						"flex-1 transition-all duration-300 overflow-y-auto",
 						"pb-20 md:pb-0"
 						)}>
-						<AnimatePresence mode="wait">
-							<motion.div
-								key={router.asPath}
-								initial={{ opacity: 0, y: 10 }}
-								animate={{ opacity: 1, y: 0 }}
-								exit={{ opacity: 0, y: -10 }}
-								transition={{ duration: 0.2, ease: "easeInOut" }}
-								className="relative z-10"
-							>
-								{children}
-							</motion.div>
-						</AnimatePresence>
+						{children}
 						{router.query.id && (
 							<WorkspaceBirthdayPrompt workspaceId={router.query.id as string} />
 						)}

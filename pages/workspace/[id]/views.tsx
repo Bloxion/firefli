@@ -96,6 +96,9 @@ type User = {
   messages: number;
   registered: boolean;
   quota: boolean;
+  quotaFailed: boolean;
+  quotaCompleted: number;
+  quotaTotal: number;
   departments?: string[];
 };
 
@@ -165,7 +168,9 @@ const filters: {
   notices: ["equal", "greaterThan", "lessThan"],
   registered: ["equal", "notEqual"],
   quota: ["equal", "notEqual"],
+  quotaFailed: ["equal", "notEqual"],
   department: ["equal", "notEqual"],
+  Period: ["equal"],
 };
 
 const filterNames: {
@@ -408,7 +413,18 @@ const Views: pageWithLayout<pageProps> = ({ isAdmin, hasManageViewsPerm, hasCrea
     columnHelper.accessor("quota", {
       header: "Quota Complete",
       cell: (row) => {
-        return <p>{row.getValue() ? "✅" : "❌"}</p>;
+        const user = row.row.original;
+        if (user.quotaTotal === 0) return <p>-</p>;
+        return <p>{user.quotaCompleted}/{user.quotaTotal}</p>;
+      },
+    }),
+    columnHelper.accessor("quotaFailed", {
+      header: "Quota Failed",
+      cell: (row) => {
+        const user = row.row.original;
+        if (user.quotaTotal === 0) return <p>-</p>;
+        const failed = user.quotaTotal - user.quotaCompleted;
+        return <p>{failed}/{user.quotaTotal}</p>;
       },
     }),
   ];
@@ -427,6 +443,7 @@ const Views: pageWithLayout<pageProps> = ({ isAdmin, hasManageViewsPerm, hasCrea
     messages: false,
     registered: false,
     quota: false,
+    quotaFailed: false,
   });
 
   const table = useReactTable({
@@ -598,6 +615,7 @@ const Views: pageWithLayout<pageProps> = ({ isAdmin, hasManageViewsPerm, hasCrea
       messages: false,
       registered: false,
       quota: false,
+      quotaFailed: false,
     });
     setSorting([]);
     setIsEditMode(false);
@@ -682,6 +700,7 @@ const Views: pageWithLayout<pageProps> = ({ isAdmin, hasManageViewsPerm, hasCrea
           messages: false,
           registered: false,
           quota: false,
+          quotaFailed: false,
         });
         setSorting([]);
       }
@@ -907,6 +926,8 @@ const Views: pageWithLayout<pageProps> = ({ isAdmin, hasManageViewsPerm, hasCrea
       return "Registered";
     } else if (columnId == "quota") {
       return "Quota Complete";
+    } else if (columnId == "quotaFailed") {
+      return "Quota Failed";
     }
   };
 
@@ -2136,7 +2157,7 @@ const Filter: React.FC<{
           </select>
         </div>
 
-        {getValues("col") !== "rank" && getValues("col") !== "registered" && getValues("col") !== "quota" && getValues("col") !== "department" && (
+        {getValues("col") !== "rank" && getValues("col") !== "registered" && getValues("col") !== "quota" && getValues("col") !== "quotaFailed" && getValues("col") !== "department" && getValues("col") !== "Period" && (
           <div className="space-y-2">
             <label className="block text-sm font-medium text-zinc-700 dark:text-white">
               Value
@@ -2189,6 +2210,37 @@ const Filter: React.FC<{
             >
               <option value="true">✅</option>
               <option value="false">❌</option>
+            </select>
+          </div>
+        )}
+
+        {getValues("col") === "quotaFailed" && (
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-zinc-700 dark:text-white">
+              Value
+            </label>
+            <select
+              {...register("value")}
+              className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md"
+            >
+              <option value="true">❌ (Failed)</option>
+              <option value="false">✅ (Passed)</option>
+            </select>
+          </div>
+        )}
+
+        {getValues("col") === "Period" && (
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-zinc-700 dark:text-white">
+              Period
+            </label>
+            <select
+              {...register("value")}
+              className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md"
+            >
+              <option value="current">Current Period</option>
+              <option value="last">Last Period</option>
+              <option value="thisMonth">This Month</option>
             </select>
           </div>
         )}

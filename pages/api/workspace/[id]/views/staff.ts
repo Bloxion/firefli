@@ -43,8 +43,44 @@ export default withPermissionCheck(
         },
       });
 
-      const startDate = lastReset?.resetAt || new Date("2025-01-01");
-      const currentDate = new Date();
+      const timePeriodFilter = filters.find(f => f.column === "timePeriod");
+      let startDate: Date;
+      let currentDate = new Date();
+
+      if (timePeriodFilter) {
+        const now = new Date();
+        switch (timePeriodFilter.value) {
+          case "current":
+            startDate = lastReset?.resetAt || new Date("2025-01-01");
+            currentDate = now;
+            break;
+          case "last":
+            const secondLastReset = await prisma.activityReset.findFirst({
+              where: {
+                workspaceGroupId,
+                resetAt: {
+                  lt: lastReset?.resetAt || now,
+                },
+              },
+              orderBy: {
+                resetAt: "desc",
+              },
+            });
+            startDate = secondLastReset?.resetAt || new Date("2025-01-01");
+            currentDate = lastReset?.resetAt || now;
+            break;
+          case "thisMonth":
+            startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+            currentDate = now;
+            break;
+          default:
+            startDate = lastReset?.resetAt || new Date("2025-01-01");
+            currentDate = now;
+        }
+      } else {
+        startDate = lastReset?.resetAt || new Date("2025-01-01");
+        currentDate = new Date();
+      }
 
       const activityConfig = await getConfig("activity", workspaceGroupId);
       const idleTimeEnabled = activityConfig?.idleTimeEnabled ?? true;
@@ -87,7 +123,7 @@ export default withPermissionCheck(
       const needsSessions = visibleColumns.length === 0 || visibleColumns.includes("hostedSessions") || visibleColumns.includes("sessionsAttended") || filters.some(f => ["sessions", "hosted"].includes(f.column));
       const needsRanks = visibleColumns.length === 0 || visibleColumns.includes("rankName") || visibleColumns.includes("rankID") || filters.some(f => f.column === "rank");
       const needsActivity = visibleColumns.length === 0 || visibleColumns.includes("minutes") || visibleColumns.includes("idleMinutes") || visibleColumns.includes("messages") || filters.some(f => ["minutes", "idle", "messages"].includes(f.column));
-      const needsQuota = visibleColumns.length === 0 || visibleColumns.includes("quota") || filters.some(f => f.column === "quota");
+      const needsQuota = visibleColumns.length === 0 || visibleColumns.includes("quota") || visibleColumns.includes("quotaFailed") || filters.some(f => ["quota", "quotaFailed"].includes(f.column));
       const needsDepartments = visibleColumns.length === 0 || visibleColumns.includes("departments") || filters.some(f => f.column === "department");
 
       let allUsers: any[] = [];
@@ -440,7 +476,10 @@ export default withPermissionCheck(
           .filter((q: any) => q !== undefined);
 
         let quota = true;
+        let quotaCompleted = 0;
+        let quotaTotal = 0;
         if (userQuotas.length > 0) {
+          quotaTotal = userQuotas.length;
           for (const userQuota of userQuotas) {
             let currentValue = 0;
 
@@ -477,9 +516,10 @@ export default withPermissionCheck(
                 break;
             }
 
-            if (currentValue < userQuota.value) {
+            if (currentValue >= userQuota.value) {
+              quotaCompleted++;
+            } else {
               quota = false;
-              break;
             }
           }
         } else {
@@ -542,6 +582,9 @@ export default withPermissionCheck(
             : 0,
           registered: user.registered || false,
           quota: quota,
+          quotaFailed: !quota,
+          quotaCompleted: quotaCompleted,
+          quotaTotal: quotaTotal,
           departments: userDepartments,
         });
       }
@@ -595,9 +638,14 @@ export default withPermissionCheck(
               case "quota":
                 value = user.quota;
                 break;
+              case "quotaFailed":
+                value = user.quotaFailed;
+                break;
               case "department":
                 value = user.departments || [];
                 break;
+              case "timePeriod":
+                return true;
               default:
                 return true;
             }
