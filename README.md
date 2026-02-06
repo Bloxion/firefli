@@ -6,7 +6,7 @@
 <div>
   <div align="left">
     <img height="40px" src=".github/logo.png"></img>
-    <h1>Firefli by Cloudysatrn (Main Orbit Maintainer)</h1>
+    <h1>Firefli by Cloudysatrn & Max Croft (Original Orbit Maintainers)</h1>
   </div>
     <img src="https://img.shields.io/badge/version-v1.0.10-blue"></img>
   <ul>
