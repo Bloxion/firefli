@@ -506,7 +506,10 @@ export default withPermissionCheck(
           },
           book: user.book,
           wallPosts: currentWallPosts,
-          inactivityNotices: user.inactivityNotices,
+          inactivityNotices: user.inactivityNotices ? user.inactivityNotices.map((notice: any) => ({
+            ...notice,
+            userId: notice.userId.toString(),
+          })) : [],
           sessions: allSessionParticipations,
           rankID: (() => {
             if (!user.ranks[0]?.rankId) return 0;
