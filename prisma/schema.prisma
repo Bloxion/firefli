@@ -21,6 +21,7 @@ model workspace {
   quotas              Quota[]
   savedViews          SavedView[]
   sessionTypes        SessionType[]
+  sessionTags         SessionTag[]
   stickyAnnouncements StickyAnnouncement?
   apiKey              apiKey[]
   config              config[]
@@ -224,6 +225,19 @@ model SessionType {
   hostingRoles       role[]       @relation("SessionTypeTorole")
 }
 
+model SessionTag {
+  id               String    @id @unique @default(uuid()) @db.Uuid
+  name             String
+  color            String
+  workspaceGroupId Int
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  sessions         Session[]
+  workspace        workspace @relation(fields: [workspaceGroupId], references: [groupId])
+
+  @@index([workspaceGroupId])
+}
+
 model schedule {
   id            String      @id @unique @default(uuid()) @db.Uuid
   Days          Int[]
@@ -258,6 +272,7 @@ model Session {
   ended            DateTime?
   sessionTypeId    String        @db.Uuid
   scheduleId       String?       @db.Uuid
+  sessionTagId     String?       @db.Uuid
   duration         Int           @default(30)
   archiveEndDate   DateTime?
   archiveStartDate DateTime?
@@ -265,6 +280,7 @@ model Session {
   owner            user?         @relation(fields: [ownerId], references: [userid])
   schedule         schedule?     @relation(fields: [scheduleId], references: [id])
   sessionType      SessionType   @relation(fields: [sessionTypeId], references: [id])
+  sessionTag       SessionTag?   @relation(fields: [sessionTagId], references: [id])
   logs             SessionLog[]
   notes            SessionNote[]
   users            sessionUser[]

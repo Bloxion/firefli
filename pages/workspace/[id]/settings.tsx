@@ -2,13 +2,14 @@
 
 import type { pageWithLayout } from "@/layoutTypes"
 import { loginState } from "@/state"
-import { IconChevronRight, IconHome, IconLock, IconFlag, IconKey, IconServer, IconBellExclamation, IconHourglassHigh } from "@tabler/icons-react"
+import { IconChevronRight, IconHome, IconLock, IconFlag, IconKey, IconServer, IconBellExclamation, IconHourglassHigh, IconCalendarEvent } from "@tabler/icons-react"
 import Permissions from "@/components/settings/permissions"
 import Workspace from "@/layouts/workspace"
 import { useRecoilState } from "recoil"
 import type { GetServerSideProps } from "next"
 import * as All from "@/components/settings/general"
 import * as Api from "@/components/settings/api"
+import * as SessionComponents from "@/components/settings/sessions"
 import * as Instance from "@/components/settings/instance"
 import toast, { Toaster } from "react-hot-toast"
 import * as noblox from "noblox.js"
@@ -109,6 +110,16 @@ const SECTIONS = {
         title: Component.title,
       })),
   },
+  sessions: {
+    name: "Sessions",
+    icon: IconCalendarEvent,
+    description: "Manage session tags and colors",
+    components: Object.entries(SessionComponents).map(([key, Component]) => ({
+      key,
+      component: Component,
+      title: Component.title,
+    })),
+  },
   features: {
     name: "Feature Flags",
     icon: IconFlag,
@@ -166,6 +177,7 @@ const Settings: pageWithLayout<Props> = ({ roles, departments, grouproles, isAdm
 
   const canAccessGeneral = hasPermission('workspace_customisation');
   const canAccessActivity = hasPermission('reset_activity');
+  const canAccessSessions = hasPermission('manage_features');
   const canAccessFeatures = hasPermission('manage_features');
   const canAccessApi = hasPermission('manage_apikeys');
   const canAccessPermissions = isAdmin || hasPermission('admin'); // Admins or admin permission
@@ -175,6 +187,7 @@ const Settings: pageWithLayout<Props> = ({ roles, departments, grouproles, isAdm
   const availableSections = Object.entries(SECTIONS).filter(([key]) => {
     if (key === 'general') return canAccessGeneral;
     if (key === 'activity') return canAccessActivity;
+    if (key === 'sessions') return canAccessSessions;
     if (key === 'features') return canAccessFeatures;
     if (key === 'api') return canAccessApi;
     if (key === 'permissions') return canAccessPermissions;

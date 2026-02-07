@@ -83,6 +83,7 @@ export const getServerSideProps = withPermissionCheckSsr(
       include: {
         owner: true,
         sessionType: true,
+        sessionTag: true,
         users: {
           include: {
             user: true,
@@ -465,7 +466,7 @@ const WeeklyCalendar: React.FC<{
                             </div>
                           </div>
 
-                          <div className="flex items-center gap-2 mb-2">
+                          <div className="flex items-center gap-2 mb-2 flex-wrap">
                             {isActive && (
                               <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200 animate-pulse">
                                 • LIVE
@@ -481,6 +482,13 @@ const WeeklyCalendar: React.FC<{
                               >
                                 {session.type.charAt(0).toUpperCase() +
                                   session.type.slice(1)}
+                              </span>
+                            )}
+                            {session.sessionTag && (
+                              <span
+                                className={`${session.sessionTag.color} text-white px-2 py-1 rounded text-xs font-medium`}
+                              >
+                                {session.sessionTag.name}
                               </span>
                             )}
                             {isConcluded && (
@@ -1009,6 +1017,13 @@ const Home: pageWithLayout<pageProps> = (props) => {
                               >
                                 {session.type.charAt(0).toUpperCase() +
                                   session.type.slice(1)}
+                              </span>
+                            )}
+                            {session.sessionTag && (
+                              <span
+                                className={`${session.sessionTag.color} text-white px-2 py-1 rounded text-xs font-medium flex-shrink-0`}
+                              >
+                                {session.sessionTag.name}
                               </span>
                             )}
                             {isConcluded && (

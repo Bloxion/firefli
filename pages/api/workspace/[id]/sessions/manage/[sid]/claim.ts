@@ -21,7 +21,7 @@ export async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
     return res
       .status(400)
       .json({ success: false, error: "Missing required fields" });
-  const { date, timezoneOffset } = req.body;
+  const { date, timezoneOffset, sessionTagId } = req.body;
   if (!date)
     return res
       .status(400)
@@ -97,6 +97,14 @@ export async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
     },
   });
   if (findSession) {
+    const updateData: any = {
+      ownerId: BigInt(req.session.userid),
+    };
+    
+    if (sessionTagId !== undefined) {
+      updateData.sessionTagId = sessionTagId || null;
+    }
+
     const schedulewithsession = await prisma.schedule.update({
       where: {
         id: schedule.id,
@@ -107,9 +115,7 @@ export async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
             where: {
               id: findSession.id,
             },
-            data: {
-              ownerId: BigInt(req.session.userid),
-            },
+            data: updateData,
           },
         },
       },
@@ -135,18 +141,24 @@ export async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
       });
   }
 
+  const createData: any = {
+    date: dateTime,
+    sessionTypeId: schedule.sessionTypeId,
+    ownerId: req.session.userid,
+    startedAt: dateTime,
+  };
+  
+  if (sessionTagId) {
+    createData.sessionTagId = sessionTagId;
+  }
+
   const schedulewithsession = await prisma.schedule.update({
     where: {
       id: schedule.id,
     },
     data: {
       sessions: {
-        create: {
-          date: dateTime,
-          sessionTypeId: schedule.sessionTypeId,
-          ownerId: req.session.userid,
-          startedAt: dateTime,
-        },
+        create: createData,
       },
     },
     include: {

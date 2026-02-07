@@ -68,6 +68,12 @@ export default async function handler(
             slots: true,
           },
         },
+        sessionTag: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
         users: {
           include: {
             user: {
@@ -100,6 +106,12 @@ export default async function handler(
           : null,
         slots: session.sessionType.slots,
       },
+      tag: session.sessionTag
+        ? {
+            id: session.sessionTag.id,
+            name: session.sessionTag.name,
+          }
+        : null,
       host: session.owner
         ? {
             userId: Number(session.owner.userid),

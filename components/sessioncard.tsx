@@ -9,6 +9,7 @@ import {
   IconUserPlus,
   IconUserMinus,
   IconUserCheck,
+  IconTag,
 } from "@tabler/icons-react";
 import axios from "axios";
 import { useRouter } from "next/router";
@@ -19,6 +20,7 @@ import ReactMarkdown from "react-markdown";
 import rehypeSanitize from "rehype-sanitize";
 import type { SessionColors } from "@/hooks/useSessionColors";
 import { canAssignUsers, canClaimSelf, canHostSession } from "@/utils/sessionPermissions";
+import { Listbox } from "@headlessui/react";
 
 // Mobile detection utility
 const isMobile = () => {
@@ -85,6 +87,10 @@ const SessionModal: React.FC<SessionModalProps> = ({
   const [availableUsers, setAvailableUsers] = useState<any[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [availableTags, setAvailableTags] = useState<any[]>([]);
+  const [selectedTag, setSelectedTag] = useState<string | null>(
+    session.sessionTagId || null
+  );
   const router = useRouter();
   const login = useRecoilValue(loginState);
   const workspace = useRecoilValue(workspacestate);
@@ -129,6 +135,53 @@ const SessionModal: React.FC<SessionModalProps> = ({
       setAvailableUsers(workspaceMembers);
     }
   }, [isOpen, session, workspaceMembers, login.userId]);
+
+  useEffect(() => {
+    const fetchTags = async () => {
+      try {
+        const res = await axios.get(
+          `/api/workspace/${router.query.id}/settings/activity/session-tags`
+        );
+        if (res.data.tags) {
+          setAvailableTags(res.data.tags);
+        }
+      } catch (error) {
+        console.error("Failed to fetch tags:", error);
+      }
+    };
+
+    if (isOpen && router.query.id) {
+      fetchTags();
+    }
+  }, [isOpen, router.query.id]);
+
+  useEffect(() => {
+    setSelectedTag(session.sessionTagId || null);
+  }, [session.sessionTagId]);
+
+  const handleTagAssignment = async (tagId: string | null) => {
+    try {
+      setIsSubmitting(true);
+      const res = await axios.post(
+        `/api/workspace/${router.query.id}/sessions/manage/${session.scheduleId}/update-tag`,
+        {
+          sessionId: session.id,
+          sessionTagId: tagId,
+        }
+      );
+
+      if (res.data.success) {
+        setSelectedTag(tagId);
+        toast.success(tagId ? "Tag assigned successfully" : "Tag removed successfully");
+        refreshSessionData();
+      }
+    } catch (error: any) {
+      console.error("Failed to update tag:", error);
+      toast.error(error.response?.data?.error || "Failed to update tag");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const handleHostClaim = async (username: string) => {
     const userHasAssignPermission = canAssignUsers(workspace.yourPermission, session.type);
@@ -560,6 +613,119 @@ const SessionModal: React.FC<SessionModalProps> = ({
                 )}
             </div>
           </div>
+          {(() => {
+            const sessionType = session.type || "other";
+            const canAssignTag =
+              canManage ||
+              workspace.isAdmin ||
+              workspace.yourPermission?.includes(`sessions_${sessionType}_assign_tag`) ||
+              workspace.yourPermission?.includes("admin");
+            if (!canAssignTag) return null;
+
+            return (
+              <div>
+                <h3 className="text-lg font-medium text-zinc-900 dark:text-white mb-3">
+                  Session Tag
+                </h3>
+                <div className="bg-zinc-50 dark:bg-zinc-700/30 rounded-lg p-4">
+                  <div className="flex items-center gap-3">
+                    <IconTag className="w-5 h-5 text-zinc-500 dark:text-zinc-400" />
+                    <div className="flex-1">
+                      <Listbox value={selectedTag} onChange={handleTagAssignment} disabled={isSubmitting}>
+                        <div className="relative">
+                          <Listbox.Button className="relative w-full cursor-pointer rounded-lg bg-white dark:bg-zinc-800 py-2 pl-3 pr-10 text-left border border-zinc-300 dark:border-zinc-600 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed">
+                            <span className="block truncate text-zinc-900 dark:text-white">
+                              {selectedTag
+                                ? availableTags.find((t) => t.id === selectedTag)?.name || "Select a tag"
+                                : "No tag"}
+                            </span>
+                            {selectedTag && (
+                              <span
+                                className={`absolute inset-y-0 right-10 flex items-center pr-2`}
+                              >
+                                <span
+                                  className={`w-3 h-3 rounded-full ${
+                                    availableTags.find((t) => t.id === selectedTag)?.color || "bg-zinc-300"
+                                  }`}
+                                ></span>
+                              </span>
+                            )}
+                          </Listbox.Button>
+                          <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-lg bg-white dark:bg-zinc-800 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                            <Listbox.Option
+                              value={null}
+                              className={({ active }) =>
+                                `relative cursor-pointer select-none py-2 pl-10 pr-4 ${
+                                  active
+                                    ? "bg-primary/10 text-primary"
+                                    : "text-zinc-900 dark:text-white"
+                                }`
+                              }
+                            >
+                              {({ selected }) => (
+                                <>
+                                  <span
+                                    className={`block truncate dark:text-white ${
+                                      selected ? "font-medium" : "font-normal"
+                                    }`}
+                                  >
+                                    No tag
+                                  </span>
+                                  {selected && (
+                                    <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-primary dark:text-white">
+                                      <IconUserCheck className="w-5 h-5" />
+                                    </span>
+                                  )}
+                                </>
+                              )}
+                            </Listbox.Option>
+                            {availableTags.map((tag) => (
+                              <Listbox.Option
+                                key={tag.id}
+                                value={tag.id}
+                                className={({ active }) =>
+                                  `relative cursor-pointer select-none py-2 pl-10 pr-4 ${
+                                    active
+                                      ? "bg-primary/10 text-primary"
+                                      : "text-zinc-900 dark:text-white"
+                                  }`
+                                }
+                              >
+                                {({ selected }) => (
+                                  <>
+                                    <div className="flex items-center gap-2">
+                                      <span
+                                        className={`w-3 h-3 rounded-full ${tag.color}`}
+                                      ></span>
+                                      <span
+                                        className={`block truncate dark:text-white ${
+                                          selected ? "font-medium" : "font-normal"
+                                        }`}
+                                      >
+                                        {tag.name}
+                                      </span>
+                                    </div>
+                                    {selected && (
+                                      <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-primary">
+                                        <IconUserCheck className="w-5 h-5" />
+                                      </span>
+                                    )}
+                                  </>
+                                )}
+                              </Listbox.Option>
+                            ))}
+                          </Listbox.Options>
+                        </div>
+                      </Listbox>
+                    </div>
+                  </div>
+                  <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
+                    Assign a tag to categorise this training session
+                  </p>
+                </div>
+              </div>
+            );
+          })()}
 
           <NotesSection
             sessionId={session.id}
@@ -1307,6 +1473,10 @@ const ActivityLogsSection: React.FC<{
         return <IconUserMinus className="w-4 h-4 text-red-500" />;
       case "session_claimed":
         return <IconUserCheck className="w-4 h-4 text-blue-500" />;
+      case "tag_assigned":
+        return <IconTag className="w-4 h-4 text-blue-500" />;
+      case "tag_removed":
+        return <IconTag className="w-4 h-4 text-red-500" />;
       default:
         return <IconHistory className="w-4 h-4 text-zinc-500" />;
     }
@@ -1331,6 +1501,16 @@ const ActivityLogsSection: React.FC<{
         return `${actorName} removed ${targetName} as "Host"`;
       case "session_claimed":
         return `${actorName} claimed this session`;
+      case "tag_assigned":
+        const oldTagName = log.metadata?.oldTag?.name;
+        const newTagName = log.metadata?.newTag?.name;
+        if (oldTagName) {
+          return `${actorName} changed tag from "${oldTagName}" to "${newTagName}"`;
+        }
+        return `${actorName} assigned tag "${newTagName}"`;
+      case "tag_removed":
+        const removedTagName = log.metadata?.oldTag?.name;
+        return `${actorName} removed tag "${removedTagName}"`;
       default:
         return `${actorName} performed an action`;
     }

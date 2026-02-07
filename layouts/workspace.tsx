@@ -444,6 +444,7 @@ const workspace: LayoutProps = ({ children }) => {
 
 			const canAccessGeneral = hasPermission('workspace_customisation');
 			const canAccessActivity = hasPermission('reset_activity');
+			const canAccessSessions = hasPermission('manage_features');
 			const canAccessFeatures = hasPermission('manage_features');
 			const canAccessApi = hasPermission('manage_apikeys');
 			const canAccessPermissions = workspace.isAdmin || hasPermission('admin');
@@ -468,6 +469,14 @@ const workspace: LayoutProps = ({ children }) => {
 					href: `/workspace/${id}/settings?section=activity`,
 					icon: HourglassIcon,
 					active: currentSection === 'activity',
+				});
+			}
+			if (canAccessSessions) {
+				settingsItems.push({
+					label: "Sessions",
+					href: `/workspace/${id}/settings?section=sessions`,
+					icon: Calendar01Icon,
+					active: currentSection === 'sessions',
 				});
 			}
 			if (canAccessFeatures) {
