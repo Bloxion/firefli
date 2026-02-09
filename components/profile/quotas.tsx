@@ -30,7 +30,7 @@ export function QuotasProgress({
     if (!quota || !quota.value) {
       return 0;
     }
-    if (quota.percentage !== undefined) {
+    if (quota.type !== "custom" && quota.percentage !== undefined) {
       return quota.percentage;
     }
     switch (quota.type) {
