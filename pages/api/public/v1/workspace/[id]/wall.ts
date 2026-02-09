@@ -2,8 +2,9 @@ import type { NextApiRequest, NextApiResponse } from "next"
 import prisma from "@/utils/database"
 import { logAudit } from '@/utils/logs'
 import { validateApiKey } from "@/utils/api-auth"
+import { withPublicApiRateLimit } from "@/utils/prtl"
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "GET" && req.method !== "POST") {
     return res.status(405).json({ success: false, error: "Method not allowed" })
   }
@@ -99,3 +100,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(500).json({ success: false, error: "Internal server error" })
   }
 }
+
+export default withPublicApiRateLimit(handler)

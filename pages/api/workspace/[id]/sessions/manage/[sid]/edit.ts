@@ -2,6 +2,8 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import prisma, { SessionType } from "@/utils/database";
 import { withPermissionCheck } from "@/utils/permissionsManager";
+import { sessionTypeStatusSchema, sessionTypeSlotSchema } from "@/utils/jsonValidation";
+import { z } from "zod/v4";
 
 type Data = {
   success: boolean;
@@ -26,6 +28,15 @@ export async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
     return res
       .status(400)
       .json({ success: false, error: "Missing required fields" });
+
+  const statusResult = z.array(sessionTypeStatusSchema).safeParse(statues);
+  if (!statusResult.success) {
+    return res.status(400).json({ success: false, error: "Invalid status format" });
+  }
+  const slotsResult = z.array(sessionTypeSlotSchema).safeParse(slots);
+  if (!slotsResult.success) {
+    return res.status(400).json({ success: false, error: "Invalid slots format" });
+  }
 
   const findSession = await prisma.sessionType.findUnique({
     where: {

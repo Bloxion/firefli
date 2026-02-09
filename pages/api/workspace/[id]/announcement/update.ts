@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/utils/database";
 import { withPermissionCheck } from "@/utils/permissionsManager";
 import { logAudit } from "@/utils/logs";
+import { stickyAnnouncementSectionSchema } from "@/utils/jsonValidation";
 
 type Data = {
   success: boolean;
@@ -26,6 +27,14 @@ async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
     return res.status(400).json({
       success: false,
       error: "Missing required fields: title and sections",
+    });
+  }
+
+  const sectionsResult = stickyAnnouncementSectionSchema.safeParse(sections);
+  if (!sectionsResult.success) {
+    return res.status(400).json({
+      success: false,
+      error: "Invalid sections format",
     });
   }
 

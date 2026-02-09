@@ -1,7 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/utils/database";
+import { withPublicApiRateLimit } from "@/utils/prtl"
+import { validateApiKey } from "@/utils/api-auth"
 
-export default async function handler(
+async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
@@ -24,22 +26,10 @@ export default async function handler(
   }
 
   try {
-    const key = await prisma.apiKey.findUnique({
-      where: { key: apiKey },
-    });
-
-    if (!key || key.workspaceGroupId !== workspaceId) {
-      return res.status(401).json({ success: false, error: "Invalid API key" });
+    const key = await validateApiKey(apiKey, workspaceId)
+    if (!key) {
+      return res.status(401).json({ success: false, error: "Invalid or expired API key" })
     }
-
-    if (key.expiresAt && new Date() > key.expiresAt) {
-      return res.status(401).json({ success: false, error: "API key expired" });
-    }
-
-    await prisma.apiKey.update({
-      where: { id: key.id },
-      data: { lastUsed: new Date() },
-    });
 
     const daysParam = req.query.days
       ? Number.parseInt(req.query.days as string)
@@ -111,3 +101,5 @@ export default async function handler(
       .json({ success: false, error: "Internal server error" });
   }
 }
+
+export default withPublicApiRateLimit(handler)

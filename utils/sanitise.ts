@@ -1,9 +1,13 @@
 export function sanitizeJSON(node: any): any {
   const disallowedTypes = new Set(["iframe", "htmlBlock", "script", "embed", "video", "rawHTML"]);
+  const SAFE_DATA_URI_PATTERN = /^data:image\/(png|jpeg|gif|svg\+xml|webp);/;
 
   function isSafeUrl(url: any) {
     if (typeof url !== "string") return false;
-    return /^https?:\/\//.test(url) || /^data:/.test(url) || /^mailto:/.test(url);
+    if (/^https?:\/\//.test(url)) return true;
+    if (/^mailto:/.test(url)) return true;
+    if (/^data:/.test(url)) return SAFE_DATA_URI_PATTERN.test(url);
+    return false;
   }
 
   function sanitize(node: any): any {

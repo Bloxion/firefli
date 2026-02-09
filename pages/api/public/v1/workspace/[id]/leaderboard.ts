@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next"
 import prisma from "@/utils/database"
 import { validateApiKey } from "@/utils/api-auth"
 import { getConfig } from "@/utils/configEngine"
+import { withPublicApiRateLimit } from "@/utils/prtl"
 
 type LeaderboardEntry = {
   _id: string
@@ -10,7 +11,7 @@ type LeaderboardEntry = {
   in_game: boolean
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "GET") return res.status(405).json({ success: false, error: "Method not allowed" })
 
   const apiKey = req.headers.authorization?.replace("Bearer ", "")
@@ -195,3 +196,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(500).json({ success: false, error: "Internal server error" })
   }
 }
+
+export default withPublicApiRateLimit(handler)
