@@ -4,7 +4,8 @@ import prisma from '@/utils/database';
 import axios from 'axios';
 import * as noblox from 'noblox.js';
 import { getRobloxThumbnail } from '@/utils/roblox';
-import { isUserBlocked, logBlockedAccess } from '@/utils/blocklist'; 
+import { isUserBlocked, logBlockedAccess } from '@/utils/blocklist';
+import { clearLoginAttempts } from '@/utils/accountLockout';
 
 export default withSessionRoute(handler);
 
@@ -167,6 +168,7 @@ export async function handler(req: NextApiRequest, res: NextApiResponse) {
 		});
 
 		req.session.userid = userId;
+		clearLoginAttempts(userId);
 		await req.session.save();
 		delete req.session.oauthState;
 		await req.session.save();
@@ -179,21 +181,11 @@ export async function handler(req: NextApiRequest, res: NextApiResponse) {
 	} catch (error) {
 		console.error('OAuth callback error:', error);
 		if (axios.isAxiosError(error)) {
-			console.error('Response data:', error.response?.data);
 			console.error('Response status:', error.response?.status);
-			console.error('Request config:', {
-				url: error.config?.url,
-				method: error.config?.method,
-				headers: error.config?.headers
-			});
+			console.error('Error type:', error.response?.data?.error);
 			if (error.response?.data?.error === 'invalid_grant' || 
 			    error.response?.data?.error_description?.includes('Client credentials')) {
-				console.error('Credential validation failed. Check if:', {
-					clientIdStartsWith: clientId?.substring(0, 10) + '...',
-					clientSecretStartsWith: clientSecret?.substring(0, 10) + '...',
-					redirectUriMatches: redirectUri,
-					note: 'Ensure credentials in database match exactly with Roblox OAuth app settings'
-				});
+				console.error('Credential validation failed. Verify OAuth app configuration matches environment.');
 			}
 		}
 		return res.redirect('/login?error=oauth_failed');

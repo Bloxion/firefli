@@ -73,6 +73,12 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
       const { name, color, icon, filters, columnVisibility, isLocal } = req.body;
       if (!name) return res.status(400).json({ success: false, error: "Missing name" });
+      if (filters && JSON.stringify(filters).length > 50000) {
+        return res.status(400).json({ success: false, error: "Filters data too large" });
+      }
+      if (columnVisibility && JSON.stringify(columnVisibility).length > 50000) {
+        return res.status(400).json({ success: false, error: "Column visibility data too large" });
+      }
       if (isLocal) {
         // local view creation ONLY
       } else {

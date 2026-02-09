@@ -1,8 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/utils/database";
 import { validateApiKey } from "@/utils/api-auth";
+import { withPublicApiRateLimit } from "@/utils/prtl"
 
-export default async function handler(
+async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
@@ -164,3 +165,5 @@ export default async function handler(
       .json({ success: false, error: "Internal server error" });
   }
 }
+
+export default withPublicApiRateLimit(handler)

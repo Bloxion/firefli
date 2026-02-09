@@ -82,6 +82,13 @@ export async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
         .json({ success: false, error: "Action is required" });
     }
 
+    if (metadata && typeof metadata === 'object') {
+      const stringified = JSON.stringify(metadata);
+      if (stringified.length > 10000) {
+        return res.status(400).json({ success: false, error: "Metadata too large" });
+      }
+    }
+
     try {
       const log = await prisma.sessionLog.create({
         data: {

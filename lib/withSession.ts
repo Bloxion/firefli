@@ -12,9 +12,6 @@ import { isUserBlocked, logBlockedAccess } from "@/utils/blocklist";
 
 if (process.env.NODE_ENV === 'production') {
   const secret = process.env.SESSION_SECRET || crypto.randomBytes(32).toString("hex");
-  if (secret === 'supersecretpassword') {
-    throw new Error('SESSION_SECRET must be changed from the default secret in production');
-  }
   const strength = zxcvbn(secret);
   if (strength.score < 4) { 
     throw new Error(
@@ -32,11 +29,11 @@ const sessionOptions: SessionOptions = {
     secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
     sameSite: "lax",
-    maxAge: 60 * 60 * 24 * 7, // 1 week
+    maxAge: 60 * 60 * 24 * 1,
     path: '/',
     domain: process.env.NODE_ENV === 'production' ? process.env.COOKIE_DOMAIN : undefined,
   },
-  ttl: 60 * 60 * 24 * 7, // 1 week
+  ttl: 60 * 60 * 24 * 1,
 };
 
 export function withSessionRoute(handler: NextApiHandler) {

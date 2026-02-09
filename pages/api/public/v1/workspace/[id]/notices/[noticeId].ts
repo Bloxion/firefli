@@ -1,8 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from "next"
 import prisma from "@/utils/database"
 import { validateApiKey } from "@/utils/api-auth"
+import { withPublicApiRateLimit } from "@/utils/prtl"
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   const apiKey = req.headers.authorization?.replace("Bearer ", "")
   if (!apiKey) return res.status(401).json({ success: false, error: "Missing API key" })
 
@@ -163,3 +164,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(500).json({ success: false, error: "Internal server error" })
   }
 }
+
+export default withPublicApiRateLimit(handler)

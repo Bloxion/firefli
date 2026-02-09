@@ -8,13 +8,13 @@ export default function proxy(request: NextRequest) {
     "Content-Security-Policy",
     [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://widget.intercom.io https://js.intercomcdn.com https://cdn.posthog.com https://js.posthog.com https://cdn.intercom.com https://uploads.intercomcdn.com https://uranus.planetaryapp.cloud",
-      "script-src-elem 'self' 'unsafe-inline' https://static.cloudflareinsights.com/ https://*.posthog.com https://widget.intercom.io https://js.intercomcdn.com https://cdn.posthog.com https://js.posthog.com https://cdn.intercom.com https://uploads.intercomcdn.com https://uranus.planetaryapp.cloud",
+      "script-src 'self' 'unsafe-inline' https://widget.intercom.io https://js.intercomcdn.com https://cdn.posthog.com https://js.posthog.com https://cdn.intercom.com https://uploads.intercomcdn.com",
+      "script-src-elem 'self' 'unsafe-inline' https://static.cloudflareinsights.com/ https://*.posthog.com https://widget.intercom.io https://js.intercomcdn.com https://cdn.posthog.com https://js.posthog.com https://cdn.intercom.com https://uploads.intercomcdn.com",
       "script-src-attr 'self' 'unsafe-inline'",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com https://fonts.intercomcdn.com",
-      "img-src 'self' data: https: blob:",
-      "connect-src 'self' https: https://api.intercom.io https://events.posthog.com https://app.posthog.com https://uranus.planetaryapp.cloud wss://*.intercom.io wss:",
+      "img-src 'self' data:image/png data:image/jpeg data:image/gif data:image/svg+xml data:image/webp https: blob:",
+      "connect-src 'self' https://api.intercom.io https://events.posthog.com https://app.posthog.com https://eu.i.posthog.com https://apis.roblox.com https://thumbnails.roblox.com https://users.roblox.com wss://*.intercom.io",
       "media-src 'self' https://audio-ssl.itunes.apple.com https://cdn.freesound.org",
       "frame-src 'self' https://widget.intercom.io https://www.youtube.com",
       "frame-ancestors 'self'",
@@ -27,7 +27,7 @@ export default function proxy(request: NextRequest) {
 
   response.headers.set("X-Frame-Options", "SAMEORIGIN");
 
-  response.headers.set("X-XSS-Protection", "1; mode=block");
+  response.headers.set("X-XSS-Protection", "0");
 
   response.headers.set(
     "Permissions-Policy",

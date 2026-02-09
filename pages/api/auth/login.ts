@@ -20,6 +20,8 @@ import axios from "axios";
 import rateLimit from "express-rate-limit";
 import { NextApiHandler } from "next";
 import { isUserBlocked, logBlockedAccess } from "@/utils/blocklist";
+import { isAccountLocked, recordFailedAttempt, clearLoginAttempts } from "@/utils/accountLockout";
+import { loginInputSchema } from "@/utils/jsonValidation";
 const groupCache = new Map<number, { logo: string; name: string; timestamp: number }>();
 const CACHE_DURATION = 15 * 60 * 1000;
 
@@ -161,7 +163,12 @@ export async function handler(
         .json({ success: false, error: "Username and password are required" });
     }
 
-    console.log("Attempting login for username:", req.body.username);
+    const inputValidation = loginInputSchema.safeParse(req.body);
+    if (!inputValidation.success) {
+      return res
+        .status(400)
+        .json({ success: false, error: "Invalid input format" });
+    }
 
     const id = (await getRobloxUserId(
       req.body.username,
@@ -181,14 +188,24 @@ export async function handler(
         .json({ success: false, error: "Invalid username or password" });
     }
 
-    console.log("Got Roblox user ID:", id);
-
     if (isUserBlocked(id)) {
       logBlockedAccess(id, 'login');
-      console.error('Blocked user attempted login:', id);
+      console.error('[System] Blocked user attempted login:', id);
       return res
         .status(403)
         .json({ success: false, error: "Access denied" });
+    }
+
+    const lockoutStatus = isAccountLocked(id);
+    if (lockoutStatus.locked) {
+      const remainingMinutes = Math.ceil(lockoutStatus.remainingMs / 60000);
+      console.warn(`[System] Locked account login attempt for user ID: ${id}`);
+      return res
+        .status(429)
+        .json({
+          success: false,
+          error: `Account locked. Try again in ${remainingMinutes} minute(s).`,
+        });
     }
 
     const user = await prisma.user
@@ -220,26 +237,39 @@ export async function handler(
     }
 
     if (!user || !user.info?.passwordhash) {
-      console.log("User not found or no password hash for ID:", id);
+      console.log("[System] User not found or no password hash for ID:", id);
       return res
         .status(401)
         .json({ success: false, error: "Invalid username or password" });
     }
-
-    console.log("Found user in database, comparing password...");
 
     const valid = await safeBcryptCompare(
       req.body.password,
       user.info.passwordhash
     );
     if (!valid) {
-      console.log("Password comparison failed for user ID:", id);
+      console.log("[System] Password comparison failed for user ID:", id);
+      const attemptResult = recordFailedAttempt(id);
+      if (attemptResult.locked) {
+        return res
+          .status(429)
+          .json({
+            success: false,
+            error: "Account locked. Try again in 15 minutes.",
+          });
+      }
       return res
         .status(401)
-        .json({ success: false, error: "Invalid username or password" });
+        .json({
+          success: false,
+          error: attemptResult.attemptsRemaining <= 2
+            ? `Invalid username or password. ${attemptResult.attemptsRemaining} attempt(s) remaining.`
+            : "Invalid username or password",
+        });
     }
 
     console.log("Password verified, setting up session...");
+    clearLoginAttempts(id);
 
     req.session.userid = id;
     await req.session?.save();

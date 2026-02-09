@@ -2,6 +2,8 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import prisma, { SessionType } from "@/utils/database";
 import { withPermissionCheck } from "@/utils/permissionsManager";
+import { sessionTypeStatusSchema, sessionTypeSlotSchema, validateJsonData } from "@/utils/jsonValidation";
+import { z } from "zod/v4";
 
 const sessionTypeCreationLimits: { [key: string]: { count: number; resetTime: number } } = {};
 function checkSessionTypeCreationRateLimit(req: NextApiRequest, res: NextApiResponse): boolean {
@@ -60,6 +62,19 @@ export async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
     return res
       .status(400)
       .json({ success: false, error: "Missing required fields" });
+
+  if (statues && Array.isArray(statues)) {
+    const statusResult = z.array(sessionTypeStatusSchema).safeParse(statues);
+    if (!statusResult.success) {
+      return res.status(400).json({ success: false, error: "Invalid status format" });
+    }
+  }
+  if (slots && Array.isArray(slots)) {
+    const slotsResult = z.array(sessionTypeSlotSchema).safeParse(slots);
+    if (!slotsResult.success) {
+      return res.status(400).json({ success: false, error: "Invalid slots format" });
+    }
+  }
 
   try {
     let scheduleData = null;
