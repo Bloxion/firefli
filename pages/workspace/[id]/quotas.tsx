@@ -1088,7 +1088,7 @@ const Quotas: pageWithLayout<pageProps> = ({
                             </div>
                           )}
 
-                          {quota.type !== "custom" && (<Input
+                          {watchedType !== "custom" && (<Input
                             label="Requirement"
                             type="number"
                             append={
