@@ -161,7 +161,7 @@ export function QuotasProgress({
                 <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
                   Progress
                 </span></div></div>
-                {quota.type !== "custom" ? (<><span className="text-sm font-bold text-zinc-900 dark:text-white">
+                {quota.type !== "custom" && (<><span className="text-sm font-bold text-zinc-900 dark:text-white">
                   {getQuotaProgress(quota)}
                 </span>
               
@@ -180,7 +180,7 @@ export function QuotasProgress({
               <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
                 {Math.min((getQuotaPercentage(quota) || 0), 100).toFixed(0)}% complete
               </p>
-            </>) : (<p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Tracked manually</p>)}
+            </>)}
           ))}
         </div>
       </div>
