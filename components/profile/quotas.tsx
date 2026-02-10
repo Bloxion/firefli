@@ -160,11 +160,11 @@ export function QuotasProgress({
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
                   Progress
-                </span>
+                </span></div>
                 {quota.type !== "custom" ? (<><span className="text-sm font-bold text-zinc-900 dark:text-white">
                   {getQuotaProgress(quota)}
                 </span>
-              </div>
+              
               <div className="w-full bg-zinc-200 dark:bg-zinc-600 rounded-full h-3">
                 <div
                   className={`h-3 rounded-full transition-all ${
